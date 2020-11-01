@@ -30,22 +30,25 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
         if c > 0:
             edges.append(((r, c), (r, c - 1)))
     shuffle(edges)  # baraja las aristas
-    # Paso 4
     corridors: List[Edge] = []  # pasillos de nuestro grafo
     #***********************************************
+    lista = []
     for elem in listaProhibidas:
-        u = (elem[0],elem[1])
-        v = (elem[2],elem[3])
-        # mfs.merge(u, v) #Etiqueto a "u" y a "v"
-        # corridors.append((u, v))
-        for u2, v2 in edges:
-            if (mfs.find(u2) != mfs.find(v2)):
-                mfs.merge(u2, v2)
-                corridors.append((u2, v2))
-    #************************************************
-    # Paso 5
+        u = (elem[0], elem[1])
+        v = (elem[2], elem[3])
+        arista = (u,v)
+        mfs.merge(u,v)
+        #corridors.append(arista)
+        lista.append(arista)
+    print(lista)
+    #***********************************************
+    for elem2 in edges:
+        u2=elem2[0]
+        v2=elem2[1]
+        if (mfs.find(u2) != mfs.find(v2)):
+            mfs.merge(u2, v2)
+            corridors.append((u2, v2))
 
-    # Paso 6
     return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors
 
 #********* Metodos para entrada y salida del programa *********************************************
@@ -69,6 +72,8 @@ def muestraSolucion(sol):
     for elem1, elem2 in sol[3]:
         print(elem1[0], elem1[1], elem2[0], elem2[1])
 
+#********* main ***************************************************************************************
+
 if __name__ == '__main__':
     seed(42)  # Esto es para que siempre salga el mismo grafico, lo ejecutes donde lo ejecutes
 
@@ -76,7 +81,7 @@ if __name__ == '__main__':
     sol = laberintoMensaje(fichEntrada)
 
     graph = sol[0]
-    #muestraSolucion(sol)
-
+    # muestraSolucion(sol)
+    #
     if len(argv) == 3 and argv[2] == "-g":
         visualizaLaberinto(graph)
