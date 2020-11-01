@@ -3,7 +3,7 @@ from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from random import shuffle, seed
-from labyrinthviewer import LabyrinthViewer
+#from labyrinthviewer import LabyrinthViewer
 
 Vertex = Tuple[int, int]
 Edge = Tuple[Vertex, Vertex]
@@ -31,25 +31,50 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
             edges.append(((r, c), (r, c - 1)))
     shuffle(edges)  # baraja las aristas
     corridors: List[Edge] = []  # pasillos de nuestro grafo
-    #***********************************************
+
+    #**********************************************
     lista = []
     for elem in listaProhibidas:
         u = (elem[0], elem[1])
         v = (elem[2], elem[3])
         arista = (u,v)
-        mfs.merge(u,v)
-        #corridors.append(arista)
+        #mfs.merge(u,v)
         lista.append(arista)
-    print(lista)
     #***********************************************
+
     for elem2 in edges:
         u2=elem2[0]
         v2=elem2[1]
         if (mfs.find(u2) != mfs.find(v2)):
-            mfs.merge(u2, v2)
-            corridors.append((u2, v2))
+            if ((u2, v2) not in lista and (v2, u2) not in lista):
+                mfs.merge(u2, v2)
+                corridors.append((u2, v2))
 
     return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors
+
+#**************Comprobación si es conexo o no*******************************************************
+
+def recorredor_vertices_profundidad(grafo: UndirectedGraph, v_inicial: Vertex) -> List[Edge]:
+    def recorrido_desde(v):
+        seen.add(v)
+        vertices.append(v)
+        for suc in grafo.succs(v):
+            if suc not in seen:
+                recorrido_desde(suc)
+    vertices = []
+    seen = set()
+    recorrido_desde(v_inicial)
+    return vertices
+
+def componentes_conexos(g: UndirectedGraph) -> "List[List[Vertex]]":
+    vertices_no_visitados = set(g.V)
+    resultado = []
+    while len(vertices_no_visitados) > 0:
+        u = vertices_no_visitados.pop()
+        vertices_visitados = recorredor_vertices_profundidad(g, u)
+        vertices_no_visitados -= set(vertices_visitados)
+        resultado.append(vertices_visitados)
+    return resultado
 
 #********* Metodos para entrada y salida del programa *********************************************
 
@@ -63,7 +88,7 @@ def leerFichero(fichEntrada):
     return lista  # Devolvemos lista de tuplas, cada elemento una linea del fichero
 
 def visualizaLaberinto(graph):
-    lv = LabyrinthViewer(graph, canvas_width=800, canvas_height=600, margin=10)
+    lv = LabyrinthViewer(graph, canvas_width=900, canvas_height=900, margin=10)
     lv.run()
 
 def muestraSolucion(sol):
@@ -81,7 +106,13 @@ if __name__ == '__main__':
     sol = laberintoMensaje(fichEntrada)
 
     graph = sol[0]
-    # muestraSolucion(sol)
-    #
-    if len(argv) == 3 and argv[2] == "-g":
-        visualizaLaberinto(graph)
+
+    if(len(componentes_conexos(graph))==1):
+        muestraSolucion(sol)
+        # if len(argv) == 3 and argv[2] == "-g":
+        #     visualizaLaberinto(graph)
+    else:
+        print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
+
+
+
