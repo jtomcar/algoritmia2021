@@ -3,7 +3,10 @@ from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from random import shuffle, seed
-#from labyrinthviewer import LabyrinthViewer
+
+from algoritmia.datastructures.queues import Fifo
+
+from labyrinthviewer import LabyrinthViewer
 
 Vertex = Tuple[int, int]
 Edge = Tuple[Vertex, Vertex]
@@ -52,7 +55,7 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
 
     return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors
 
-#**************Comprobación si es conexo o no*******************************************************
+#**************Comprobación si es conexo o no + cliclos*******************************************
 
 def recorredor_vertices_profundidad(grafo: UndirectedGraph, v_inicial: Vertex) -> List[Edge]:
     def recorrido_desde(v):
@@ -65,6 +68,19 @@ def recorredor_vertices_profundidad(grafo: UndirectedGraph, v_inicial: Vertex) -
     seen = set()
     recorrido_desde(v_inicial)
     return vertices
+
+# def recorredor_aristas_profundiad(g: UndirectedGraph, v_inicial: Vertex) -> List[Edge]:
+#     def recorrido_desde(u, v):
+#         seen.add(v)
+#         aristas.append((u, v))
+#         for suc in g.succs(v):
+#             if suc not in seen:
+#                 recorrido_desde(v, suc)
+#
+#     aristas = []
+#     seen = set()
+#     recorrido_desde(v_inicial, v_inicial)
+#     return aristas
 
 def componentes_conexos(g: UndirectedGraph) -> "List[List[Vertex]]":
     vertices_no_visitados = set(g.V)
@@ -109,8 +125,8 @@ if __name__ == '__main__':
 
     if(len(componentes_conexos(graph))==1):
         muestraSolucion(sol)
-        # if len(argv) == 3 and argv[2] == "-g":
-        #     visualizaLaberinto(graph)
+        if len(argv) == 3 and argv[2] == "-g":
+            visualizaLaberinto(graph)
     else:
         print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
 
