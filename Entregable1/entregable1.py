@@ -1,16 +1,13 @@
+import sys
 from typing import *
 from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from random import shuffle, seed
-
-from algoritmia.datastructures.queues import Fifo
-
 from labyrinthviewer import LabyrinthViewer
 
 Vertex = Tuple[int, int]
 Edge = Tuple[Vertex, Vertex]
-
 
 def laberintoMensaje(fichEntrada) -> UndirectedGraph:
 
@@ -41,7 +38,6 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
         u = (elem[0], elem[1])
         v = (elem[2], elem[3])
         arista = (u,v)
-        #mfs.merge(u,v)
         lista.append(arista)
     #***********************************************
 
@@ -53,7 +49,11 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
                 mfs.merge(u2, v2)
                 corridors.append((u2, v2))
 
-    return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors
+    valido=True
+    if ((len(vertices)-len(corridors))!=1):
+        valido=False
+
+    return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors, valido
 
 #**************Comprobación si es conexo o no + cliclos*******************************************
 
@@ -68,19 +68,6 @@ def recorredor_vertices_profundidad(grafo: UndirectedGraph, v_inicial: Vertex) -
     seen = set()
     recorrido_desde(v_inicial)
     return vertices
-
-# def recorredor_aristas_profundiad(g: UndirectedGraph, v_inicial: Vertex) -> List[Edge]:
-#     def recorrido_desde(u, v):
-#         seen.add(v)
-#         aristas.append((u, v))
-#         for suc in g.succs(v):
-#             if suc not in seen:
-#                 recorrido_desde(v, suc)
-#
-#     aristas = []
-#     seen = set()
-#     recorrido_desde(v_inicial, v_inicial)
-#     return aristas
 
 def componentes_conexos(g: UndirectedGraph) -> "List[List[Vertex]]":
     vertices_no_visitados = set(g.V)
@@ -118,15 +105,19 @@ def muestraSolucion(sol):
 if __name__ == '__main__':
     seed(42)  # Esto es para que siempre salga el mismo grafico, lo ejecutes donde lo ejecutes
 
+    sys.setrecursionlimit(10000) #Para que no limita la pila por las limitaciones de python
+
     fichEntrada = leerFichero(argv[1])
     sol = laberintoMensaje(fichEntrada)
 
     graph = sol[0]
-    visualizaLaberinto(graph)
-    if(len(componentes_conexos(graph))==1):
+    es_valido=sol[4]
+    componentes_conexos(graph)
+
+    if(len(componentes_conexos(graph))==1 and es_valido):
         muestraSolucion(sol)
-        # if len(argv) == 3 and argv[2] == "-g":
-        #     visualizaLaberinto(graph)
+        if len(argv) == 3 and argv[2] == "-g":
+            visualizaLaberinto(graph)
     else:
         print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
 
