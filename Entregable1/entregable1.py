@@ -27,7 +27,7 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
 
     edges: List[Edge] = []
     # Creamos la arista de arriba e izquierda de cada vertice
-    for r, c in vertices:  # r,c = (r,c) = v Desglosas la tupla
+    for r, c in vertices:  # r,c = (r,c) = v Desglolsas la tupla
         if r > 0:
             edges.append(((r, c), (r - 1, c)))
         if c > 0:
@@ -122,11 +122,11 @@ if __name__ == '__main__':
     sol = laberintoMensaje(fichEntrada)
 
     graph = sol[0]
-
+    visualizaLaberinto(graph)
     if(len(componentes_conexos(graph))==1):
         muestraSolucion(sol)
-        if len(argv) == 3 and argv[2] == "-g":
-            visualizaLaberinto(graph)
+        # if len(argv) == 3 and argv[2] == "-g":
+        #     visualizaLaberinto(graph)
     else:
         print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
 
