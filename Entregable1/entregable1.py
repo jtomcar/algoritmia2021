@@ -50,7 +50,7 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
                 corridors.append((u2, v2))
 
     valido=True
-    if ((len(vertices)-len(corridors))!=1):
+    if ((len(vertices)-len(corridors))!=1): #Comprabación de que entra en todas las habitaciones
         valido=False
 
     return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors, valido
