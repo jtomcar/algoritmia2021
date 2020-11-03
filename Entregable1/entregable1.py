@@ -91,9 +91,9 @@ def leerFichero(fichEntrada):
         lista.append(elem)
     return lista  # Devolvemos lista de tuplas, cada elemento una linea del fichero
 
-def visualizaLaberinto(graph):
-    lv = LabyrinthViewer(graph, canvas_width=900, canvas_height=900, margin=10)
-    lv.run()
+# def visualizaLaberinto(graph):
+#     lv = LabyrinthViewer(graph, canvas_width=900, canvas_height=900, margin=10)
+#     lv.run()
 
 def muestraSolucion(sol):
     print(sol[1][0],sol[1][1])
@@ -117,8 +117,8 @@ if __name__ == '__main__':
 
     if(es_conexo and es_valido):
         muestraSolucion(sol)
-        if len(argv) == 3 and argv[2] == "-g":
-            visualizaLaberinto(graph)
+        # if len(argv) == 3 and argv[2] == "-g":
+        #     visualizaLaberinto(graph)
     else:
         print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
 
