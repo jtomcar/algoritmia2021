@@ -4,7 +4,7 @@ from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from random import shuffle, seed
-from labyrinthviewer import LabyrinthViewer
+# from labyrinthviewer import LabyrinthViewer
 
 Vertex = Tuple[int, int]
 Edge = Tuple[Vertex, Vertex]
@@ -93,9 +93,9 @@ def leerFichero(fichEntrada):
             lista.append(elem)
     return lista  # Devolvemos lista de tuplas, cada elemento una linea del fichero
 
-def visualizaLaberinto(graph):
-    lv = LabyrinthViewer(graph, canvas_width=1500, canvas_height=1500, margin=10)
-    lv.run()
+# def visualizaLaberinto(graph):
+#     lv = LabyrinthViewer(graph, canvas_width=1500, canvas_height=1500, margin=10)
+#     lv.run()
 
 def muestraSolucion(sol):
     print(sol[1][0],sol[1][1])
@@ -119,8 +119,8 @@ if __name__ == '__main__':
 
     if(es_conexo and entra_en_todas):
         muestraSolucion(sol)
-        if len(argv) == 3 and argv[2] == "-g":
-            visualizaLaberinto(graph)
+        # if len(argv) == 3 and argv[2] == "-g":
+        #     visualizaLaberinto(graph)
     else:
         print("NO ES POSIBLE CONSTRUIR EL LABERINTO")
 
