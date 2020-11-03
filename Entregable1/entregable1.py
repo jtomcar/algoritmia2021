@@ -13,8 +13,7 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
 
     num_filas=int(fichEntrada[0][0])
     num_cols=int(fichEntrada[0][1])
-    num_paredesProhib = int(fichEntrada[1][0])  #No se para que utilizarlo
-    conjuntoProhibidas = set(fichEntrada[2:len(fichEntrada)]) #Conjunto es más rapido 0(1)
+    conjuntoProhibidas = set(fichEntrada[2:len(fichEntrada)]) #Conjunto es más rapido ls busq O(1)
 
     mfs: MergeFindSet[Vertex] = MergeFindSet()
     vertices: List[Vertex] = []
@@ -38,7 +37,7 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
         u=elem[0]
         v=elem[1]
         if (mfs.find(u) != mfs.find(v)):
-            if ((v, u) not in conjuntoProhibidas): # Comprabamos que no es una pared prohibida
+            if ((u, v) not in conjuntoProhibidas and (v,u) not in conjuntoProhibidas): # Comprabamos que no es una pared prohibida
                 mfs.merge(u, v)
                 corridors.append((u, v))
 
