@@ -14,8 +14,13 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
     num_filas=fichEntrada[0][0]
     num_cols=fichEntrada[0][1]
     num_paredesProhib = fichEntrada[1][0]  #No se para que utilizarlo
-    listaProhibidas = fichEntrada[2:len(fichEntrada)]
-
+    listaProhibidas = []
+    for elem in fichEntrada[2:len(fichEntrada)]:
+        u = (elem[0], elem[1])
+        v = (elem[2], elem[3])
+        arista = (u,v)
+        listaProhibidas.append(arista)
+    #***********************************************
     vertices: List[Vertex] = [(r,c) for r in range(num_filas) for c in range(num_cols)]
 
     mfs: MergeFindSet[Vertex] = MergeFindSet()
@@ -29,28 +34,21 @@ def laberintoMensaje(fichEntrada) -> UndirectedGraph:
             edges.append(((r, c), (r - 1, c)))
         if c > 0:
             edges.append(((r, c), (r, c - 1)))
+
     shuffle(edges)  # baraja las aristas
+
     corridors: List[Edge] = []  # pasillos de nuestro grafo
-
-    #**********************************************
-    lista = []
-    for elem in listaProhibidas:
-        u = (elem[0], elem[1])
-        v = (elem[2], elem[3])
-        arista = (u,v)
-        lista.append(arista)
-    #***********************************************
-
     for elem2 in edges:
         u2=elem2[0]
         v2=elem2[1]
         if (mfs.find(u2) != mfs.find(v2)):
-            if ((u2, v2) not in lista and (v2, u2) not in lista):
+            if ((u2, v2) not in listaProhibidas and (v2, u2) not in listaProhibidas):
                 mfs.merge(u2, v2)
                 corridors.append((u2, v2))
 
+    # Comprabación de que entra en todas las habitaciones
     valido=True
-    if ((len(vertices)-len(corridors))!=1): #Comprabación de que entra en todas las habitaciones
+    if ((len(vertices)-len(corridors))!=1):
         valido=False
 
     return UndirectedGraph(E=corridors), (num_filas,num_cols), len(corridors), corridors, valido
@@ -72,15 +70,18 @@ def recorredor_vertices_profundidad(grafo: UndirectedGraph, v_inicial: Vertex) -
 def componentes_conexos(g: UndirectedGraph) -> "List[List[Vertex]]":
     vertices_no_visitados = set(g.V)
     resultado = []
+    es_conexo=True
     while len(vertices_no_visitados) > 0:
         u = vertices_no_visitados.pop()
         vertices_visitados = recorredor_vertices_profundidad(g, u)
         vertices_no_visitados -= set(vertices_visitados)
         resultado.append(vertices_visitados)
-    return resultado
+        if (len(resultado)>1): #Si no es conexo, salir
+            es_conexo=False
+            break
+    return es_conexo
 
 #********* Metodos para entrada y salida del programa *********************************************
-
 def leerFichero(fichEntrada):
     fich = open(fichEntrada, "r", encoding="utf-8")
     lista = []
@@ -112,9 +113,9 @@ if __name__ == '__main__':
 
     graph = sol[0]
     es_valido=sol[4]
-    componentes_conexos(graph)
+    es_conexo = componentes_conexos(graph)
 
-    if(len(componentes_conexos(graph))==1 and es_valido):
+    if(es_conexo and es_valido):
         muestraSolucion(sol)
         if len(argv) == 3 and argv[2] == "-g":
             visualizaLaberinto(graph)
