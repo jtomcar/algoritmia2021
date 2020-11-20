@@ -12,116 +12,65 @@ from labyrinthviewer import LabyrinthViewer
 Vertex = Tuple[float, float]
 Edge = Tuple[Vertex, Vertex]
 
-def crearGrafo(fichEntrada) -> UndirectedGraph:
-    num_puntos = int(fichEntrada[0][0])
+def crearGrafo(fichEntrada) -> Tuple[UndirectedGraph, Dict[Tuple[int, int], float]]:
     vertices = fichEntrada[1:len(fichEntrada)]
-    edges: List[Edge] = []
-    aristas: List[Edge] = []
-    mfs: MergeFindSet[Vertex] = MergeFindSet()
+    aristas = dict()
 
-    dicPuntos = {} #Diccionario de posiciones vertices
-    for i in range(len(vertices)):
-        dicPuntos[i]=vertices[i]
-        mfs.add(dicPuntos[i])
+    for u in range(len(vertices)):
+        for v in range(len(vertices)):
+            if u != v:
+                dist = distancia(vertices[u], vertices[v])
+                aristas[(u, v)] = dist
 
-    for i in range(len(vertices)):
-        for j in range(len(vertices)):
-            if (i!=j and (i,j) not in aristas and (j,i) not in aristas ):
-                edges.append((vertices[i],vertices[j]))
-                #aristas.append((i,j))
-
-    corridors: List[Edge] = []
-    distanciaVertices=[]
-    x=0;
-    for elem in edges:
-        distanciaVertices.append((distancia(elem[0],elem[1]),elem))
-        x=x+1;
-
-    distanciaVertices.sort()
-    for elem in distanciaVertices:
-        aristas.append(elem[1])
+    return UndirectedGraph(E=aristas.keys()), aristas
 
 
-    print(aristas)
+def kruskalMod(grafo,aristas) -> Tuple[List[Edge], int, float]:
+    dicAristas=aristas
+    aristas= sorted(aristas.items(), key=lambda x: x[1]) #Ordenamos las aristas
+    vertices = grafo.V
+    mfs = MergeFindSet()
+    edges=[]
+    distanciaFinal=0
+    for vertice in vertices:
+        mfs.add(vertice)
 
-    for u, v in aristas:
-        aristas.remove((u, v))
-        if (mfs.find(u)!=mfs.find(v)):
-            mfs.merge(u,v)
-            corridors.append((u,v))
+    vistos: List[int] = [0] * len(vertices)
+    for arista, distancia in aristas:
+        u = arista[0]
+        v = arista[1]
+        if mfs.find(u) != mfs.find(v):
+            mfs.merge(u, v)
+            edges.append((u, v))
+            vistos[u] += 1
+            vistos[v] += 1
+            distanciaFinal = distanciaFinal+distancia
 
-    print(distanciaVertices)
-    print(aristas)
+    #Buscamos los que solo se han visto una vez, y añadimos la ultima arista
+    cont=0
+    elem1=-1
+    elem2=-1
+    for elem in vistos:
+        if elem==1:
+            if elem1 != -1: elem2 = cont
+            else: elem1=cont
+        cont=cont+1
 
-    #return UndirectedGraph(V=vertices, E=edges)
-    return UndirectedGraph(E=corridors)
+    edges.append((elem1,elem2))
+    distanciaFinal = distanciaFinal + dicAristas[(elem1,elem2)]
+    #-----------------------------------------------------------------------
+    pos=0
+    sol=[]
+    for edge in edges:
+        if edge in dicAristas.keys():
+          sol.append(pos)
+        pos=pos+1
 
-# HANGANU -------------------------------------------------------------------------------
+    return edges,len(vertices),distanciaFinal
 
-# def kruskal(fichEntrada) -> UndirectedGraph:
-#     num_puntos = int(fichEntrada[0][0])
-#     print(num_puntos)
-#     vertices = fichEntrada[1:len(fichEntrada)]
-#     print((vertices))
-#     conjuntoPuntos = set(fichEntrada[1:len(fichEntrada)])
-#     print(conjuntoPuntos)
-#     mfs: MergeFindSet[Vertex] = MergeFindSet()
-#     vertices: List[Vertex] = []
-#     edges: List[Edge] = []
-#     distanciaTotal=0
-#
-#
-# #Que ascooooooooooooooooooooooooooooooooooo
-#
-#     for punto1 in conjuntoPuntos:
-#         puntoAux=punto1
-#         for punto2 in conjuntoPuntos:
-#             distanciaAuxiliar=999999999999
-#             if punto1!=punto2:
-#                 distancia1=distancia(punto1,punto2)
-#                 if(distancia1<distanciaAuxiliar and ((punto1,punto2)) not in(edges) and ((punto2,punto1)) not in(edges)):
-#                     distanciaAuxiliar=distancia1
-#                     puntoAux=punto2
-#         edges.append((punto1,puntoAux))
-#
-#     for elem in edges:
-#         print(elem)
-#
-#
-#     # for r in range(num_puntos):
-#     #     for c in range(num_puntos):
-#     #         vertices.append((r, c))
-#     #         mfs.add((r, c))
-#     #         print(r)
-#     #         print(c)
-#     #         # distancia=math.sqrt((r[0]-r[1])*(r[0]-r[1])+(c[0]-c[1])*(c[0]-c[1]))
-#
-#
-#
-#
+#Metodo calculo de distancias
 def distancia(punto1,punto2):
-    return math.sqrt((float(punto1[0]) - float(punto1[1])) **2 + ((float(punto2[0]) - float(punto2[1])) **2))
-#
-#
-# #Kruskal del libro
-# # class KruskalsMinimumSpanningForestFinder(IMinimumSpanningForestFinder):
-# #     def init (self , createMergeFindSet: "Iterable<T> -> IMFSet<T>"
-# #             =lambda V: MergeFindSet((v,) for v in V)):
-# #         self.createMergeFindSet = createMergeFindSet
-# # def minimum spanning forest(self , G: "undirected Digraph<T>",
-# #         d: "T, T -> R") -> "Iterable<(T, T)> ":
-# #     forest = self.createMergeFindSet(G.V)
-# #     n = 0
-# #     for ( , (u,v)) in sorted(((d(u,v), (u,v)) for (u,v) in G.E)):
-# #         if forest.find(u) != forest.find(v):
-# #             forest.merge(u, v)
-# #             yield (u, v)
-# #             n += 1
-# #             if n == len(G.V)-1: break
-
-
-
-
+    return math.sqrt((punto2[0] - punto1[0]) **2 + ((punto2[1] - punto1[1]) **2))
 
 #********* Metodos para entrada y salida del programa *********************************************
 def leerFichero(fichEntrada):
@@ -139,16 +88,56 @@ def leerFichero(fichEntrada):
             lista.append(elem)
     return lista  # Devolvemos lista de tuplas, cada elemento una linea del fichero
 
+def muestraSalida(edges, num_v, distanciaFinal):
+    # output = [0]
+    # grafo = UndirectedGraph(E=edges)
+    # s0 = grafo.succs(0)
+    # output.append(min(s0))
+    # for i in range(num_v - 2):
+    #     s0 = grafo.succs(output[len(output) - 1])
+    #     s0_0 = s0.pop()
+    #     if s0_0 != output[len(output) - 2]:
+    #         output.append(s0_0)
+    #     else:
+    #         if len(s0)==0:
+    #             break
+    #         s0_1 = s0.pop()
+    #         output.append(s0_1)
+    # print(distanciaFinal)
+    # print(output)
+    # return output
+
+    print(edges)
+    salida=[]
+    salida.append(0)
+    i=0
+    #Primera arista
+    for arista in edges:
+        if arista[0] == 0 and i != 0:
+            salida.append(arista[1])
+        i=i+1
+    print(num_v)
+    # Ya están la primera arista en output (dos vertices) ahora iremos añadiendo los vértices que están conectados con el último que esté en output
+    # como ya hemos añadido el 0 y su sucesor, solo tenemos que añadir la talla de los vértices - 2
+    print(salida)
+    for e in range(num_v - 2):
+        e = salida[e + 1]  # e ahora es el valor del último vértice añadido
+        for c in edges:
+            if c[0] == e and c[1] not in salida:
+                salida.append(c[1])
+                break
+            if c[1] == e and c[0] not in salida:
+                salida.append(c[0])
+                break
+
+    print(distanciaFinal)
+    print(salida)
+    return salida
 
 if __name__ == '__main__':
 
     fichEntrada = leerFichero(argv[1])
-    # print(int(fichEntrada[0][0]))
-    # for elem in fichEntrada[1:int(fichEntrada[0][0])+1]:
-    #     print(elem)
-    # for i in range(len(fichEntrada)):
-    #     print(i)
-
-    grafo = crearGrafo(fichEntrada)
-    viewer = Graph2dViewer(grafo, window_size=(800, 800))
-    viewer.run()
+    #Kruskal
+    solGrafo = crearGrafo(fichEntrada)
+    solKruskal = kruskalMod(solGrafo[0],solGrafo[1])
+    solucionAlg1=muestraSalida(solKruskal[0],solKruskal[1],solKruskal[2])
