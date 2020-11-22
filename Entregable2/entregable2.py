@@ -1,4 +1,5 @@
 import math
+import operator
 import sys
 from typing import *
 from sys import *
@@ -12,132 +13,149 @@ from labyrinthviewer import LabyrinthViewer
 Vertex = Tuple[float, float]
 Edge = Tuple[Vertex, Vertex]
 
-def crearGrafo(fichEntrada) -> Tuple[UndirectedGraph, Dict[Tuple[int, int], float]]:
+
+def crearGrafo(fichEntrada) -> Tuple[UndirectedGraph, Dict[Tuple[int, int], float], MergeFindSet]:
     vertices = fichEntrada[1:len(fichEntrada)]
     aristas = dict()
+    mfs = MergeFindSet()
 
     for u in range(len(vertices)):
+        mfs.add(u)
         for v in range(len(vertices)):
             if u != v:
                 dist = distancia(vertices[u], vertices[v])
                 aristas[(u, v)] = dist
 
-    return UndirectedGraph(E=aristas.keys()), aristas
+    return UndirectedGraph(E=aristas.keys()), aristas, mfs
 
 
-def kruskalMod(grafo,aristas) -> Tuple[List[Edge], int, float]:
-    dicAristas=aristas
-    aristas= sorted(aristas.items(), key=lambda x: x[1]) #Ordenamos las aristas
-    vertices = grafo.V
-    mfs = MergeFindSet()
-    edges=[]
-    distanciaFinal=0
-    for vertice in vertices:
-        mfs.add(vertice)
+def kruskalMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
+    # Aristas
+    aristasOriginal = aristas
+    aristas = sorted(aristas.items(), key=operator.itemgetter(1))  # Ordenamos por valor
+    edges = []
+    # Vertices clave:vertice, valor:vecesVistos
+    vertices = dict()
+    vistos = []
+    for i in range(len(grafo.V)):
+        vertices[i] = 0
+        vistos.append(i)
+    #Distancia final
+    distanciaFinal = 0
 
-    vistos: List[int] = [0] * len(vertices)
     for arista, distancia in aristas:
         u = arista[0]
         v = arista[1]
-        if mfs.find(u) != mfs.find(v):
+        if mfs.find(u) != mfs.find(v) and vertices[u] <=1 and vertices[v] <=1:
+            vertices[u]+=1
+            vertices[v]+=1
+            if vertices[u]==2:
+                vistos.remove(u)
+            if vertices[v]==2:
+                vistos.remove(v)
             mfs.merge(u, v)
             edges.append((u, v))
-            vistos[u] += 1
-            vistos[v] += 1
-            distanciaFinal = distanciaFinal+distancia
+            distanciaFinal = distanciaFinal + distancia
 
-    #Buscamos los que solo se han visto una vez, y añadimos la ultima arista
-    cont=0
-    elem1=-1
-    elem2=-1
-    for elem in vistos:
-        if elem==1:
-            if elem1 != -1: elem2 = cont
-            else: elem1=cont
-        cont=cont+1
+    edges.append((vistos[0], vistos[1]))
+    distanciaFinal = distanciaFinal + aristasOriginal[(vistos[0], vistos[1])]
 
-    edges.append((elem1,elem2))
-    distanciaFinal = distanciaFinal + dicAristas[(elem1,elem2)]
-    #-----------------------------------------------------------------------
+    return UndirectedGraph(E=edges), len(grafo.V), distanciaFinal
+
+def primMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
+    #Conjunto para los vertices visitados
+    listaVisitados = list()
+    listaVisitados.append(0)
+    #Grafo final
+    grafoSol=UndirectedGraph
+    comparador = set()
+    print(grafo.succs(0))
     pos=0
-    sol=[]
-    for edge in edges:
-        if edge in dicAristas.keys():
-          sol.append(pos)
+    while len(listaVisitados) < 5:
+        elem=listaVisitados[pos]
+        min = aristas[(elem, 1)]
+        for sucesor in grafo.succs(elem):
+            dist=aristas[(elem,sucesor)]
+            if dist<min:
+                min=dist
+                suce=sucesor
+        listaVisitados.append(suce)
         pos=pos+1
 
-    return edges,len(vertices),distanciaFinal
 
-#Metodo calculo de distancias
-def distancia(punto1,punto2):
-    return math.sqrt((punto2[0] - punto1[0]) **2 + ((punto2[1] - punto1[1]) **2))
+    print(listaVisitados)
 
-#********* Metodos para entrada y salida del programa *********************************************
+
+
+
+
+
+
+
+
+# Metodo calculo de distancias
+def distancia(punto1, punto2):
+    return math.sqrt((punto2[0] - punto1[0]) ** 2 + ((punto2[1] - punto1[1]) ** 2))
+
+
+# ********* Metodos para entrada y salida del programa *********************************************
 def leerFichero(fichEntrada):
     fich = open(fichEntrada, "r", encoding="utf-8")
     lista = []
-    i=0
+    i = 0
     for linea in fich:
         i += 1
-        elem=linea.rstrip("\n").split(" ")
-        elem=tuple(elem)
-        if (i>1): #Formato arista
+        elem = linea.rstrip("\n").split(" ")
+        elem = tuple(elem)
+        if (i > 1):  # Formato arista
             u = (float(elem[0]), float(elem[1]))
             lista.append(u)
         else:
             lista.append(elem)
     return lista  # Devolvemos lista de tuplas, cada elemento una linea del fichero
 
-def muestraSalida(edges, num_v, distanciaFinal):
-    # output = [0]
-    # grafo = UndirectedGraph(E=edges)
-    # s0 = grafo.succs(0)
-    # output.append(min(s0))
-    # for i in range(num_v - 2):
-    #     s0 = grafo.succs(output[len(output) - 1])
-    #     s0_0 = s0.pop()
-    #     if s0_0 != output[len(output) - 2]:
-    #         output.append(s0_0)
-    #     else:
-    #         if len(s0)==0:
-    #             break
-    #         s0_1 = s0.pop()
-    #         output.append(s0_1)
-    # print(distanciaFinal)
-    # print(output)
-    # return output
 
-    print(edges)
-    salida=[]
+def muestraSalida(grafoSol, nVertices, distanciaFinal):
+
+    salida = []
+    print(grafoSol)
     salida.append(0)
+    mete=min(grafoSol.succs(0)) #3
+    salida.append(mete)
     i=0
-    #Primera arista
-    for arista in edges:
-        if arista[0] == 0 and i != 0:
-            salida.append(arista[1])
-        i=i+1
-    print(num_v)
-    # Ya están la primera arista en output (dos vertices) ahora iremos añadiendo los vértices que están conectados con el último que esté en output
-    # como ya hemos añadido el 0 y su sucesor, solo tenemos que añadir la talla de los vértices - 2
-    print(salida)
-    for e in range(num_v - 2):
-        e = salida[e + 1]  # e ahora es el valor del último vértice añadido
-        for c in edges:
-            if c[0] == e and c[1] not in salida:
-                salida.append(c[1])
-                break
-            if c[1] == e and c[0] not in salida:
-                salida.append(c[0])
-                break
+    while i <= nVertices-3:
+        aux=salida[len(salida)-2] #Penultimo metido
+        for elem in grafoSol.succs(mete):
+            if elem != aux:
+                salida.append(elem)
+                mete=elem
+        i+=1
+
+    # salida = []
+    # print(grafoSol)
+    # salida.append(0)
+    # mete=min(grafoSol.succs(0)) #3
+    # salida.append(mete)
+    # i=0
+    # while i <= nVertices-3:
+    #     aux=salida[len(salida)-2] #Penultimo metido
+    #     sucesores=tuple(grafoSol.succs(mete))
+    #     if sucesores[0]!=aux:
+    #         salida.append(sucesores[0])
+    #         mete = sucesores[0]
+    #     else:
+    #         salida.append(sucesores[1])
+    #         mete = sucesores[1]
+    #     i+=1
 
     print(distanciaFinal)
     print(salida)
     return salida
-
 if __name__ == '__main__':
-
     fichEntrada = leerFichero(argv[1])
-    #Kruskal
     solGrafo = crearGrafo(fichEntrada)
-    solKruskal = kruskalMod(solGrafo[0],solGrafo[1])
-    solucionAlg1=muestraSalida(solKruskal[0],solKruskal[1],solKruskal[2])
+    # Kruskal
+    solKruskal = kruskalMod(solGrafo[0], solGrafo[1], solGrafo[2])
+    solucionAlg1 = muestraSalida(solKruskal[0], solKruskal[1], solKruskal[2])
+    # Prim
+    solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[2])
