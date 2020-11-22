@@ -57,40 +57,76 @@ def kruskalMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, An
             edges.append((u, v))
             distanciaFinal = distanciaFinal + distancia
 
+    print(edges)
     edges.append((vistos[0], vistos[1]))
     distanciaFinal = distanciaFinal + aristasOriginal[(vistos[0], vistos[1])]
 
     return UndirectedGraph(E=edges), len(grafo.V), distanciaFinal
 
 def primMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
-    #Conjunto para los vertices visitados
-    listaVisitados = list()
-    listaVisitados.append(0)
-    #Grafo final
-    grafoSol=UndirectedGraph
-    comparador = set()
+
+    grafo.succs(0)
     print(grafo.succs(0))
     pos=0
-    while len(listaVisitados) < 5:
-        elem=listaVisitados[pos]
-        min = aristas[(elem, 1)]
-        for sucesor in grafo.succs(elem):
-            dist=aristas[(elem,sucesor)]
-            if dist<min:
-                min=dist
-                suce=sucesor
-        listaVisitados.append(suce)
-        pos=pos+1
+    listaDistancias=[]
+    sol=[]
+    conjuntoBolsa=set()
 
+    for elem in aristas.items():
+        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
+            listaDistancias.append((elem[1],elem[0]))
+    minimo=min(listaDistancias)
+    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
+    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
+    sol.append(minimo)
+    listaDistancias.remove(minimo)
 
-    print(listaVisitados)
+    pos+=1
+    for elem in aristas.items():
+        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
+            listaDistancias.append((elem[1],elem[0]))
+    minimo=min(listaDistancias)
+    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
+    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
+    sol.append(minimo)
+    listaDistancias.remove(minimo)
 
+    pos+=1
+    for elem in aristas.items():
+        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
+            listaDistancias.append((elem[1],elem[0]))
+    minimo=min(listaDistancias)
+    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
+    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
+    sol.append(minimo)
+    listaDistancias.remove(minimo)
 
+    pos+=1
+    for elem in aristas.items():
+        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
+            listaDistancias.append((elem[1],elem[0]))
+    minimo=min(listaDistancias)
+    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
+    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
+    sol.append(minimo)
+    listaDistancias.remove(minimo)
 
+    pos+=1
+    for elem in aristas.items():
+        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
+            listaDistancias.append((elem[1],elem[0]))
+    minimo=min(listaDistancias)
+    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
+    if minimoReves in listaDistancias:
+        print("Hola")
+        listaDistancias.remove(minimoReves)
+    sol.append(minimo)
+    listaDistancias.remove(minimo)
 
-
-
-
+    print("Min", min(listaDistancias))
+    print("Conjunto", conjuntoBolsa)
+    print("lista", listaDistancias)
+    print("sol", sol)
 
 
 # Metodo calculo de distancias
@@ -118,7 +154,6 @@ def leerFichero(fichEntrada):
 def muestraSalida(grafoSol, nVertices, distanciaFinal):
 
     salida = []
-    print(grafoSol)
     salida.append(0)
     mete=min(grafoSol.succs(0)) #3
     salida.append(mete)

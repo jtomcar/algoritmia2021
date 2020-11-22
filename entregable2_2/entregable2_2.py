@@ -178,6 +178,7 @@ def prim(datos, edges, pesos, i_o):
             else:
                 vis_1_vez = i
         i += 1
+    print(pasillos)
     output = crear_output(pasillos, num_v)
     print("PRIM")
     print(peso_total)
