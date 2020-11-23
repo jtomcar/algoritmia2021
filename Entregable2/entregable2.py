@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
     # tiempo_inicial = time()
 
-    fichEntrada = leerFichero(argv[1])
+    fichEntrada = leerFichero()
     solGrafo = crearGrafo(fichEntrada)
     # Kruskal
     solKruskal = kruskalMod(solGrafo[0], solGrafo[1], solGrafo[2], solGrafo[3])
