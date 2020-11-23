@@ -1,20 +1,20 @@
 import math
 import operator
-import sys
 from typing import *
 from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
-from random import shuffle, seed
-
-from graph2dviewer import Graph2dViewer
-from labyrinthviewer import LabyrinthViewer
+from time import time
 
 Vertex = Tuple[float, float]
 Edge = Tuple[Vertex, Vertex]
 
+#******************************************************************************************************
+#    METODO PARA CREAR EL GRAFO
+#******************************************************************************************************
 
-def crearGrafo(fichEntrada) -> Tuple[UndirectedGraph, Dict[Tuple[int, int], float], MergeFindSet]:
+def crearGrafo(fichEntrada) -> Tuple[
+    UndirectedGraph, Dict[Tuple[int, int], float], MergeFindSet, List[Tuple[int, int]]]:
     vertices = fichEntrada[1:len(fichEntrada)]
     aristas = dict()
     mfs = MergeFindSet()
@@ -26,24 +26,32 @@ def crearGrafo(fichEntrada) -> Tuple[UndirectedGraph, Dict[Tuple[int, int], floa
                 dist = distancia(vertices[u], vertices[v])
                 aristas[(u, v)] = dist
 
-    return UndirectedGraph(E=aristas.keys()), aristas, mfs
+    aristasOrdenadas = sorted(aristas.items(), key=operator.itemgetter(1))  # Ordenamos por distancia
+
+    return UndirectedGraph(E=aristas.keys()), aristas, mfs, aristasOrdenadas
+
+# Metodo calculo de distancias
+def distancia(punto1, punto2):
+    return math.sqrt((punto2[0] - punto1[0]) ** 2 + ((punto2[1] - punto1[1]) ** 2))
 
 
-def kruskalMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
-    # Aristas
-    aristasOriginal = aristas
-    aristas = sorted(aristas.items(), key=operator.itemgetter(1))  # Ordenamos por valor
+#******************************************************************************************************
+#    ALGORITMO KRUSKAL, MODIFICADO
+#******************************************************************************************************
+
+def kruskalMod(grafo, aristas, mfs, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
+
     edges = []
     # Vertices clave:vertice, valor:vecesVistos
     vertices = dict()
-    vistos = []
+    vistos = set()
     for i in range(len(grafo.V)):
         vertices[i] = 0
-        vistos.append(i)
+        vistos.add(i)
     #Distancia final
     distanciaFinal = 0
 
-    for arista, distancia in aristas:
+    for arista, distancia in aristasOrdenadas:
         u = arista[0]
         v = arista[1]
         if mfs.find(u) != mfs.find(v) and vertices[u] <=1 and vertices[v] <=1:
@@ -57,84 +65,80 @@ def kruskalMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, An
             edges.append((u, v))
             distanciaFinal = distanciaFinal + distancia
 
-    print(edges)
-    edges.append((vistos[0], vistos[1]))
-    distanciaFinal = distanciaFinal + aristasOriginal[(vistos[0], vistos[1])]
+    print("Vertices", vertices)
+    pos1=vistos.pop()
+    pos2=vistos.pop()
+    edges.append((pos1,pos2))
+    distanciaFinal = distanciaFinal + aristas[(pos1,pos2)]
 
     return UndirectedGraph(E=edges), len(grafo.V), distanciaFinal
 
-def primMod(grafo, aristas, mfs) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
+#******************************************************************************************************
+#    ALGORITMO PRIM, MODIFICADO
+#******************************************************************************************************
 
-    grafo.succs(0)
-    print(grafo.succs(0))
+def primMod(grafo, aristas, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
+
+    #Comprobaciones
+    bolsaEliminados=set()#Si estan aqui, ya no se pueden utilizar
+    listaVistos = [0] * len(grafo.V) #0 no vistas
+    #Inicializamos con un solo vertice, el 0
+    listaVistos[0]=1
+    ultimo=set()
     pos=0
-    listaDistancias=[]
-    sol=[]
-    conjuntoBolsa=set()
+    empieza=True
+    espera=True
+    sigue=True
+    #Salidas
+    distanciaFinal=0
+    edges=[]
 
-    for elem in aristas.items():
-        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
-            listaDistancias.append((elem[1],elem[0]))
-    minimo=min(listaDistancias)
-    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
-    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
-    sol.append(minimo)
-    listaDistancias.remove(minimo)
+    while sigue:
+        for elem in aristasOrdenadas:
+            if elem[0] not in bolsaEliminados: #Si no está en la bolsa de eliminados
+                #Si aparecen los dos alguna vez, a la bolsa
+                if listaVistos[elem[0][0]] != 0 and listaVistos[elem[0][1]] != 0:
+                    bolsaEliminados.add(elem[0])
+                else:
+                    # Restriccion: Cada vertice solo puede aparecer como max en 2 aristasOrdenadas
+                    # En caso contrario, a la bolsa
+                    if listaVistos[elem[0][0]] > 1 or listaVistos[elem[0][1]] > 1:
+                        bolsaEliminados.add(elem[0])
+                    else:
+                        # Si aparecen una o ninguna, a la salida
+                        if listaVistos[elem[0][0]] != 0 or listaVistos[elem[0][1]] != 0:
+                            pos+=1
+                            if pos == len(grafo.V) - 1: sigue = False
+                            distanciaFinal = distanciaFinal+elem[1]
+                            espera=False
+                            listaVistos[elem[0][0]] += 1
+                            listaVistos[elem[0][1]] += 1
+                            # Para que 0 entre tres veces, ya que empezamos por el
+                            if elem[0][0]==0 and empieza:
+                                listaVistos[0]=1
+                                empieza=False
+                            edges.append(elem[0])
 
-    pos+=1
-    for elem in aristas.items():
-        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
-            listaDistancias.append((elem[1],elem[0]))
-    minimo=min(listaDistancias)
-    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
-    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
-    sol.append(minimo)
-    listaDistancias.remove(minimo)
+            if not espera: break
+        espera=True
 
-    pos+=1
-    for elem in aristas.items():
-        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
-            listaDistancias.append((elem[1],elem[0]))
-    minimo=min(listaDistancias)
-    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
-    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
-    sol.append(minimo)
-    listaDistancias.remove(minimo)
+    #Buscamos los que solo han aparecido 1 vez
+    for i in range(len(listaVistos)):
+        if listaVistos[i]==1:
+            ultimo.add(i)
 
-    pos+=1
-    for elem in aristas.items():
-        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
-            listaDistancias.append((elem[1],elem[0]))
-    minimo=min(listaDistancias)
-    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
-    if minimoReves in listaDistancias: listaDistancias.remove(minimoReves)
-    sol.append(minimo)
-    listaDistancias.remove(minimo)
+    #y lo añadimos, sumamos tambien su distancia
+    pos1=ultimo.pop()
+    pos2=ultimo.pop()
+    edges.append((pos1,pos2))
+    distanciaFinal = distanciaFinal + aristas[(pos1,pos2)]
 
-    pos+=1
-    for elem in aristas.items():
-        if elem[0][1] in range(len(grafo.V)) and elem[0][0]==pos:
-            listaDistancias.append((elem[1],elem[0]))
-    minimo=min(listaDistancias)
-    minimoReves = (minimo[0], (minimo[1][1], minimo[1][0]))
-    if minimoReves in listaDistancias:
-        print("Hola")
-        listaDistancias.remove(minimoReves)
-    sol.append(minimo)
-    listaDistancias.remove(minimo)
+    return UndirectedGraph(E=edges), len(grafo.V), distanciaFinal
 
-    print("Min", min(listaDistancias))
-    print("Conjunto", conjuntoBolsa)
-    print("lista", listaDistancias)
-    print("sol", sol)
+#******************************************************************************************************
+#    METODOS ENTRADA Y SALIDA DEL PROGRAMA
+#******************************************************************************************************
 
-
-# Metodo calculo de distancias
-def distancia(punto1, punto2):
-    return math.sqrt((punto2[0] - punto1[0]) ** 2 + ((punto2[1] - punto1[1]) ** 2))
-
-
-# ********* Metodos para entrada y salida del programa *********************************************
 def leerFichero(fichEntrada):
     fich = open(fichEntrada, "r", encoding="utf-8")
     lista = []
@@ -166,31 +170,28 @@ def muestraSalida(grafoSol, nVertices, distanciaFinal):
                 mete=elem
         i+=1
 
-    # salida = []
-    # print(grafoSol)
-    # salida.append(0)
-    # mete=min(grafoSol.succs(0)) #3
-    # salida.append(mete)
-    # i=0
-    # while i <= nVertices-3:
-    #     aux=salida[len(salida)-2] #Penultimo metido
-    #     sucesores=tuple(grafoSol.succs(mete))
-    #     if sucesores[0]!=aux:
-    #         salida.append(sucesores[0])
-    #         mete = sucesores[0]
-    #     else:
-    #         salida.append(sucesores[1])
-    #         mete = sucesores[1]
-    #     i+=1
-
     print(distanciaFinal)
     print(salida)
     return salida
+
+#******************************************************************************************************
+#    MAIN
+#******************************************************************************************************
+
 if __name__ == '__main__':
+
+    tiempo_inicial = time()
+
     fichEntrada = leerFichero(argv[1])
     solGrafo = crearGrafo(fichEntrada)
     # Kruskal
-    solKruskal = kruskalMod(solGrafo[0], solGrafo[1], solGrafo[2])
-    solucionAlg1 = muestraSalida(solKruskal[0], solKruskal[1], solKruskal[2])
+    solKruskal = kruskalMod(solGrafo[0], solGrafo[1], solGrafo[2], solGrafo[3])
+    muestraSalida(solKruskal[0], solKruskal[1], solKruskal[2])
     # Prim
-    solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[2])
+    solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[3])
+    muestraSalida(solPrim[0], solPrim[1], solPrim[2])
+
+    tiempo_final = time()
+    tiempo_ejecucion = tiempo_final - tiempo_inicial
+
+    print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
