@@ -144,7 +144,7 @@ def primMod(grafo, aristas, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Uni
 #    METODOS ENTRADA Y SALIDA DEL PROGRAMA
 #******************************************************************************************************
 
-def leerFichero(fichEntrada):
+def leerFichero():
     #fich = open(fichEntrada, "r", encoding="utf-8")
     lines = sys.stdin.readlines()
     lista = []
