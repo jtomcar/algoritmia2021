@@ -6,6 +6,8 @@ from algoritmia.datastructures.digraphs import UndirectedGraph
 from algoritmia.datastructures.mergefindsets import MergeFindSet
 from time import time
 
+from algoritmia.datastructures.prioritymaps import MinHeapMap
+
 Vertex = Tuple[float, float]
 Edge = Tuple[Vertex, Vertex]
 
@@ -51,20 +53,22 @@ def kruskalMod(grafo, aristas, mfs, aristasOrdenadas) -> Tuple[UndirectedGraph, 
         vistos.add(i)
     #Distancia final
     distanciaFinal = 0
+    aristasOrdenadas = dict(aristasOrdenadas)
 
-    for arista, distancia in aristasOrdenadas:
+    for arista, distancia in aristasOrdenadas.items():
         u = arista[0]
         v = arista[1]
-        if mfs.find(u) != mfs.find(v) and vertices[u] <=1 and vertices[v] <=1:
-            vertices[u]+=1
-            vertices[v]+=1
-            if vertices[u]==2:
-                vistos.remove(u)
-            if vertices[v]==2:
-                vistos.remove(v)
-            mfs.merge(u, v)
-            edges.append((u, v))
-            distanciaFinal = distanciaFinal + distancia
+        if mfs.find(u) != mfs.find(v):
+            if vertices[u] <=1 and vertices[v] <=1:
+                vertices[u]+=1
+                vertices[v]+=1
+                if vertices[u]==2:
+                    vistos.remove(u)
+                if vertices[v]==2:
+                    vistos.remove(v)
+                mfs.merge(u, v)
+                edges.append((u, v))
+                distanciaFinal = distanciaFinal + distancia
 
     pos1=vistos.pop()
     pos2=vistos.pop()
@@ -80,37 +84,37 @@ def kruskalMod(grafo, aristas, mfs, aristasOrdenadas) -> Tuple[UndirectedGraph, 
 def primMod(grafo, aristas, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Union[int, Any]]:
 
     #Comprobaciones
-    bolsaEliminados=set()#Si estan aqui, ya no se pueden utilizar
     listaVistos = [0] * len(grafo.V) #0 no vistas
     #Inicializamos con un solo vertice, el 0
     listaVistos[0]=1
     ultimo=set()
     pos=0
     empieza=True
-    espera=True
     sigue=True
     #Salidas
     distanciaFinal=0
     edges=[]
+    aristasOrdenadas=dict(aristasOrdenadas)
+
 
     while sigue:
-        for elem in aristasOrdenadas:
-            if elem[0] not in bolsaEliminados: #Si no está en la bolsa de eliminados
-                #Si aparecen los dos alguna vez, a la bolsa
+        for elem in aristasOrdenadas.items():
+            if elem[1] != 0:
+                # Vamos a seguir el patron de cambiar la distancia a 0, a las aristas que ya no nos sirven,
+                # de esta forma no las volvemos a seleccionar
                 if listaVistos[elem[0][0]] != 0 and listaVistos[elem[0][1]] != 0:
-                    bolsaEliminados.add(elem[0])
+                    aristasOrdenadas[elem[0]]=0
                 else:
                     # Restriccion: Cada vertice solo puede aparecer como max en 2 aristasOrdenadas
-                    # En caso contrario, a la bolsa
+                    # En caso contrario, distancia a 0
                     if listaVistos[elem[0][0]] > 1 or listaVistos[elem[0][1]] > 1:
-                        bolsaEliminados.add(elem[0])
+                        aristasOrdenadas[elem[0]]=0
                     else:
-                        # Si aparecen una o ninguna, a la salida
+                        # Si aparecen una o ninguna, a la salida -> edges
                         if listaVistos[elem[0][0]] != 0 or listaVistos[elem[0][1]] != 0:
                             pos+=1
                             if pos == len(grafo.V) - 1: sigue = False
                             distanciaFinal = distanciaFinal+elem[1]
-                            espera=False
                             listaVistos[elem[0][0]] += 1
                             listaVistos[elem[0][1]] += 1
                             # Para que 0 entre tres veces, ya que empezamos por el
@@ -118,9 +122,9 @@ def primMod(grafo, aristas, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Uni
                                 listaVistos[0]=1
                                 empieza=False
                             edges.append(elem[0])
+                            break
 
-            if not espera: break
-        espera=True
+
 
     #Buscamos los que solo han aparecido 1 vez
     for i in range(len(listaVistos)):
@@ -180,7 +184,7 @@ def muestraSalida(grafoSol, nVertices, distanciaFinal):
 
 if __name__ == '__main__':
 
-    tiempo_inicial = time()
+    # tiempo_inicial = time()
 
     fichEntrada = leerFichero(argv[1])
     solGrafo = crearGrafo(fichEntrada)
@@ -191,7 +195,7 @@ if __name__ == '__main__':
     solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[3])
     muestraSalida(solPrim[0], solPrim[1], solPrim[2])
 
-    tiempo_final = time()
-    tiempo_ejecucion = tiempo_final - tiempo_inicial
-
-    print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    # tiempo_final = time()
+    # tiempo_ejecucion = tiempo_final - tiempo_inicial
+    #
+    # print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
