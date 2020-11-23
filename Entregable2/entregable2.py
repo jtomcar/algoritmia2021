@@ -65,7 +65,6 @@ def kruskalMod(grafo, aristas, mfs, aristasOrdenadas) -> Tuple[UndirectedGraph, 
             edges.append((u, v))
             distanciaFinal = distanciaFinal + distancia
 
-    print("Vertices", vertices)
     pos1=vistos.pop()
     pos2=vistos.pop()
     edges.append((pos1,pos2))
@@ -180,7 +179,7 @@ def muestraSalida(grafoSol, nVertices, distanciaFinal):
 
 if __name__ == '__main__':
 
-    tiempo_inicial = time()
+    # tiempo_inicial = time()
 
     fichEntrada = leerFichero(argv[1])
     solGrafo = crearGrafo(fichEntrada)
@@ -191,7 +190,7 @@ if __name__ == '__main__':
     solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[3])
     muestraSalida(solPrim[0], solPrim[1], solPrim[2])
 
-    tiempo_final = time()
-    tiempo_ejecucion = tiempo_final - tiempo_inicial
-
-    print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    # tiempo_final = time()
+    # tiempo_ejecucion = tiempo_final - tiempo_inicial
+    #
+    # print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
