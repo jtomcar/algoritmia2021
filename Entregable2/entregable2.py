@@ -28,6 +28,7 @@ def crearGrafo(fichEntrada) -> Tuple[
 
     aristasOrdenadas = sorted(aristas.items(), key=operator.itemgetter(1))  # Ordenamos por distancia
 
+
     return UndirectedGraph(E=aristas.keys()), aristas, mfs, aristasOrdenadas
 
 # Metodo calculo de distancias
@@ -179,7 +180,7 @@ def muestraSalida(grafoSol, nVertices, distanciaFinal):
 
 if __name__ == '__main__':
 
-    # tiempo_inicial = time()
+    tiempo_inicial = time()
 
     fichEntrada = leerFichero(argv[1])
     solGrafo = crearGrafo(fichEntrada)
@@ -190,7 +191,7 @@ if __name__ == '__main__':
     solPrim = primMod(solGrafo[0], solGrafo[1], solGrafo[3])
     muestraSalida(solPrim[0], solPrim[1], solPrim[2])
 
-    # tiempo_final = time()
-    # tiempo_ejecucion = tiempo_final - tiempo_inicial
-    #
-    # print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    tiempo_final = time()
+    tiempo_ejecucion = tiempo_final - tiempo_inicial
+
+    print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
