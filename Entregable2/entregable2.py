@@ -1,5 +1,6 @@
 import math
 import operator
+import sys
 from typing import *
 from sys import *
 from algoritmia.datastructures.digraphs import UndirectedGraph
@@ -144,10 +145,11 @@ def primMod(grafo, aristas, aristasOrdenadas) -> Tuple[UndirectedGraph, int, Uni
 #******************************************************************************************************
 
 def leerFichero(fichEntrada):
-    fich = open(fichEntrada, "r", encoding="utf-8")
+    #fich = open(fichEntrada, "r", encoding="utf-8")
+    lines = sys.stdin.readlines()
     lista = []
     i = 0
-    for linea in fich:
+    for linea in lines:
         i += 1
         elem = linea.rstrip("\n").split(" ")
         elem = tuple(elem)
