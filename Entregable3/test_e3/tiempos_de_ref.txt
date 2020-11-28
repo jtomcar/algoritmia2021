@@ -1,0 +1,6 @@
+puzle_1_max15.sol	0.5
+puzle_1_max16.sol	0.5
+puzle_1_max1000.sol	0.5
+puzle_2_max87.sol	8.7
+puzle_2_max88.sol	9.2
+puzle_2_max100.sol	10.9
