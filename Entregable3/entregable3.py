@@ -1,5 +1,7 @@
 from typing import *
 import sys
+from Utils.bt_scheme import PartialSolutionWithOptimization, BacktrackingOptSolver, State, Solution
+
 
 Pos = Tuple[int, int]
 
