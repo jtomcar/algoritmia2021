@@ -7,21 +7,38 @@ from bt_scheme import *
 
 Pos = Tuple[int, int]
 
-def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
-    class SokobanPS(PartialSolution):
 
-        def __init__(self, decisiones, player_pos, boxes_start):
-            self.decisiones: List[Pos] = decisiones #lista con las decisiones tomadas
+def nuevo_mapa(level_map, player_pos, boxes_start, boxes_end, pos_caja, decide):
+    decision=""
+    if decide==0:
+        decision=("U",)
+    if decide==1:
+        decision=("L",)
+    if decide==2:
+        decision=("D",)
+    if decide==3:
+        decision=("R",)
+    if pos_caja == 0:
+        return (level_map, player_pos, boxes_start, boxes_end, decision)
+    else:
+        boxes_start[boxes_start.index(player_pos)] = pos_caja
+        return (level_map, player_pos, boxes_start , boxes_end, decision)
+
+
+def sokoban_solve ( initial_level, maximo ):
+    class SokobanPS(PartialSolution):
+        def __init__(self, decisiones, new_level):
+            self.level_map=new_level[0]
+            # self.decisiones: List[Pos] = decisiones #lista con las decisiones tomadas
+            self.decisiones: List[Pos]= decisiones
             self.longDecis = len(self.decisiones) #tamaño lista decisones
-            self.boxes_start = tuple(boxes_start) #lista para recorrer las cajas
-            self.setBoxesStart = set(boxes_start)
-            self.boxes_end = tuple(boxes_end)
-            self.player_pos = player_pos
+            self.boxes_start = tuple(new_level[2]) #lista para recorrer las cajas
+            self.setBoxesStart = set(new_level[2]) #Conjunto para buscar más rapido
+            self.boxes_end = tuple(new_level[3])
+            self.player_pos = new_level[1]
 
         def is_solution(self) -> bool:
             if self.boxes_start == self.boxes_end:
-                # print("Start", self.boxes_start)
-                # print("End", boxes_end)
                 return True
             return False
 
@@ -29,87 +46,94 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
             return self.decisiones
 
         def f(self) -> Union[int, float]:
-            return self.longDecis
+            return self.longDecis #Valor del diccionario
 
         def state(self) -> State:
-            return (self.boxes_start, self.player_pos)
+            return (self.player_pos, self.boxes_start) #Es la clave del diccionario
 
 
-        def successors(self) -> Iterable["PartialSolutionWithOptimization"]:
+        def successors(self) -> Iterable["SokobanPS"]:
             if self.longDecis < maximo: #Comprobar que no nos pasamos del maximo dado
-                # ¿Puedo mover al jugador?
-                #if self.player_pos[0] < len(level_map)-1 and self.player_pos[1] < self.longPasillos-1: #No salimos del puzle
-                    # Subimos
-                    if level_map[self.player_pos[0] - 1][self.player_pos[1]] != "#":
-                        #Puedo mover al jugardor
-                        posSubidaJugador = (self.player_pos[0] - 1, self.player_pos[1])
-                        #¿Hay una caja aqui?
-                        if posSubidaJugador in self.setBoxesStart:
-                            #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] - 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]-1, posSubidaJugador[1]) not in self.setBoxesStart:
-                                posSubidaCaja = (posSubidaJugador[0] - 1, posSubidaJugador[1])
-                                boxes_start_cambiada = list(self.boxes_start[:])
-                                #Muevo la caja
-                                boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
-                                yield SokobanPS(self.decisiones + ("U",), posSubidaJugador, boxes_start_cambiada )
-                        else:
-                            yield SokobanPS(self.decisiones + ("U",), posSubidaJugador, self.boxes_start)
+                # Subimos
+                if self.level_map[self.player_pos[0] - 1][self.player_pos[1]] != "#":
+                    #Puedo mover al jugardor
+                    posSubidaJugador = (self.player_pos[0] - 1, self.player_pos[1])
+                    #¿Hay una caja aqui?
+                    if posSubidaJugador in self.setBoxesStart:
+                        posSubidaCaja = (posSubidaJugador[0] - 1, posSubidaJugador[1])
+                        #¿Puedo mover la caja a la siguiente posicion?
+                        if self.level_map[self.player_pos[0] - 2][self.player_pos[1]] != "#":
+                            if posSubidaCaja not in self.setBoxesStart:
+                                nuevo_nivel=nuevo_mapa(self.level_map,posSubidaJugador,list(self.boxes_start),
+                                                       self.boxes_end, posSubidaCaja, 0)
+                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+                    else:
+                        nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, self.boxes_start, self.boxes_end, 0, 0)
+                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
 
 
-                    # Izquierda
-                    if level_map[self.player_pos[0]][self.player_pos[1] - 1] != "#":
-                        #Puedo mover al jugardor
-                        posSubidaJugador = (self.player_pos[0], self.player_pos[1] - 1)
-                        #¿Hay una caja aqui?
-                        if posSubidaJugador in self.setBoxesStart:
-                            #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]-1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]-1) not in self.setBoxesStart:
-                                posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1] - 1)
-                                boxes_start_cambiada = list(self.boxes_start[:])
-                                #Muevo la caja
-                                boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
-                                yield SokobanPS(self.decisiones + ("L",), posSubidaJugador, boxes_start_cambiada )
-                        else:
-                            yield SokobanPS(self.decisiones + ("L",), posSubidaJugador, self.boxes_start)
+                # Izquierda
+                if self.level_map[self.player_pos[0]][self.player_pos[1] - 1] != "#":
+                    #Puedo mover al jugardor
+                    posSubidaJugador = (self.player_pos[0], self.player_pos[1] - 1)
+                    #¿Hay una caja aqui?
+                    if posSubidaJugador in self.setBoxesStart:
+                        #¿Puedo mover la caja a la siguiente posicion?
+                        posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1] - 1)
+                        if self.level_map[self.player_pos[0]][self.player_pos[1] - 2] != "#":
+                            if posSubidaCaja not in self.setBoxesStart:
+                                nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, list(self.boxes_start),
+                                                         self.boxes_end, posSubidaCaja, 1)
+                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+                    else:
+                        nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, self.boxes_start,
+                                                 self.boxes_end, 0, 1)
+                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
 
-                    # Bajamos
-                    if level_map[self.player_pos[0] + 1][self.player_pos[1]] != "#":
-                        #Puedo mover al jugardor
-                        posSubidaJugador = (self.player_pos[0] + 1, self.player_pos[1])
-                        #¿Hay una caja aqui?
-                        if posSubidaJugador in self.setBoxesStart:
-                            #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] + 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]+1, posSubidaJugador[1]) not in self.setBoxesStart:
-                                posSubidaCaja = (posSubidaJugador[0] + 1, posSubidaJugador[1])
-                                boxes_start_cambiada = list(self.boxes_start[:])
-                                #Muevo la caja
-                                boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
-                                yield SokobanPS(self.decisiones + ("D",), posSubidaJugador, boxes_start_cambiada )
-                        else:
-                            yield SokobanPS(self.decisiones + ("D",), posSubidaJugador, self.boxes_start)
+                # Bajamos
+                if self.level_map[self.player_pos[0] + 1][self.player_pos[1]] != "#":
+                    #Puedo mover al jugardor
+                    posSubidaJugador = (self.player_pos[0] + 1, self.player_pos[1])
+                    #¿Hay una caja aqui?
+                    if posSubidaJugador in self.setBoxesStart:
+                        posSubidaCaja = (posSubidaJugador[0] + 1, posSubidaJugador[1])
+                        #¿Puedo mover la caja a la siguiente posicion?
+                        if self.level_map[self.player_pos[0] + 2][self.player_pos[1]] != "#":
+                            if posSubidaCaja not in self.setBoxesStart:
+                                nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, list(self.boxes_start),
+                                                         self.boxes_end, posSubidaCaja, 2)
+                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+                    else:
+                        nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, self.boxes_start,
+                                                 self.boxes_end, 0, 2)
+                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
 
-                    # Derecha
-                    if level_map[self.player_pos[0]][self.player_pos[1] + 1] != "#":
-                        #Puedo mover al jugardor
-                        posSubidaJugador = (self.player_pos[0], self.player_pos[1] + 1)
-                        #¿Hay una caja aqui?
-                        if posSubidaJugador in self.setBoxesStart:
-                            #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]+1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]+1) not in self.setBoxesStart:
-                                posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1]+ 1)
-                                boxes_start_cambiada = list(self.boxes_start[:])
-                                #Muevo la caja
-                                boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
-                                yield SokobanPS(self.decisiones + ("R",), posSubidaJugador, boxes_start_cambiada )
-                        else:
-                            yield SokobanPS(self.decisiones + ("R",), posSubidaJugador, self.boxes_start)
 
-    sokoban = SokobanPS((), player_pos, boxes_start)
+
+                # Derecha
+                if self.level_map[self.player_pos[0]][self.player_pos[1] + 1] != "#":
+                    #Puedo mover al jugardor
+                    posSubidaJugador = (self.player_pos[0], self.player_pos[1] + 1)
+                    #¿Hay una caja aqui?
+                    if posSubidaJugador in self.setBoxesStart:
+                        posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1] + 1)
+                        #¿Puedo mover la caja a la siguiente posicion?
+                        if self.level_map[self.player_pos[0]][self.player_pos[1] + 2] != "#":
+                            if posSubidaCaja not in self.setBoxesStart:
+                                nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, list(self.boxes_start),
+                                                         self.boxes_end, posSubidaCaja, 3)
+                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+                    else:
+                        nuevo_nivel = nuevo_mapa(self.level_map, posSubidaJugador, self.boxes_start,
+                                                 self.boxes_end, 0, 3)
+                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+
+    sokoban = SokobanPS((), initial_level)
     return BacktrackingOptSolver.solve(sokoban)
 
 
 #******************************************************************************************************
-#    METODO LEER NIVEL -> level_map: Matriz pareces y pasillos
+#    METODO LEER NIVEL -> self.level_map: Matriz pareces y pasillos
 #                         player_pos: posicion inicial jugador (f,c)
 #                         boxes_start: Lista de tuplas (f,c) con posiciones iniciales cajas
 #                         boxes_end: Lista de tuplas (f,c) con las posiciones finales de las cajas
@@ -154,15 +178,12 @@ if __name__ == '__main__':
 
     tiempo_inicial = time()
 
-    entrada = leerFichero()
-    salida = read_level(entrada)
+    solucion=list(sokoban_solve(read_level(leerFichero()), int(sys.argv[1])))
 
-    imprime=list(sokoban_solve(salida[0], salida[1], salida[2], salida[3], int(sys.argv[1])))
-
-    if len(imprime)==0:
+    if len(solucion)==0:
         print("NO HAY SOLUCIÓN CON LOS MOVIMIENTOS PEDIDOS")
     else:
-        for sol in imprime[-1]:
+        for sol in solucion[-1]:
             print(sol, end="")
 
 
