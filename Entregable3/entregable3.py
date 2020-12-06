@@ -13,28 +13,15 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
         def __init__(self, decisiones, player_pos, boxes_start):
             self.decisiones: List[Pos] = decisiones #lista con las decisiones tomadas
             self.longDecis = len(self.decisiones) #tamaño lista decisones
-            self.longPasillos = len(level_map[0])
             self.boxes_start = tuple(boxes_start) #lista para recorrer las cajas
+            self.setBoxesStart = set(boxes_start)
             self.boxes_end = tuple(boxes_end)
             self.player_pos = player_pos
 
         def is_solution(self) -> bool:
-            # cont=0
-            # setBoxesStart = set(self.boxes_start)
-            # setBoxesEnd=set(boxes_end)
-            # for elem in setBoxesStart:
-            #     if elem in setBoxesEnd:
-            #         cont+=1
-            #     if cont==3:
-            #         cont=0
-            #         print("Start", self.boxes_start)
-            #         print("End", boxes_end)
-            #         return True
-            # return False
-
-            if collections.Counter(self.boxes_start) == collections.Counter(self.boxes_end):
-                print("Start", self.boxes_start)
-                print("End", boxes_end)
+            if self.boxes_start == self.boxes_end:
+                # print("Start", self.boxes_start)
+                # print("End", boxes_end)
                 return True
             return False
 
@@ -51,15 +38,15 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
         def successors(self) -> Iterable["PartialSolutionWithOptimization"]:
             if self.longDecis < maximo: #Comprobar que no nos pasamos del maximo dado
                 # ¿Puedo mover al jugador?
-                if 0 < self.player_pos[0] < len(level_map)-1 and 0 < self.player_pos[1] < self.longPasillos-1: #No salimos del puzle
+                #if self.player_pos[0] < len(level_map)-1 and self.player_pos[1] < self.longPasillos-1: #No salimos del puzle
                     # Subimos
                     if level_map[self.player_pos[0] - 1][self.player_pos[1]] != "#":
                         #Puedo mover al jugardor
                         posSubidaJugador = (self.player_pos[0] - 1, self.player_pos[1])
                         #¿Hay una caja aqui?
-                        if posSubidaJugador in self.boxes_start:
+                        if posSubidaJugador in self.setBoxesStart:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] - 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]-1, posSubidaJugador[1]) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0] - 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]-1, posSubidaJugador[1]) not in self.setBoxesStart:
                                 posSubidaCaja = (posSubidaJugador[0] - 1, posSubidaJugador[1])
                                 boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
@@ -74,9 +61,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #Puedo mover al jugardor
                         posSubidaJugador = (self.player_pos[0], self.player_pos[1] - 1)
                         #¿Hay una caja aqui?
-                        if posSubidaJugador in self.boxes_start:
+                        if posSubidaJugador in self.setBoxesStart:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]-1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]-1) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]-1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]-1) not in self.setBoxesStart:
                                 posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1] - 1)
                                 boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
@@ -90,9 +77,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #Puedo mover al jugardor
                         posSubidaJugador = (self.player_pos[0] + 1, self.player_pos[1])
                         #¿Hay una caja aqui?
-                        if posSubidaJugador in self.boxes_start:
+                        if posSubidaJugador in self.setBoxesStart:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] + 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]+1, posSubidaJugador[1]) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0] + 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]+1, posSubidaJugador[1]) not in self.setBoxesStart:
                                 posSubidaCaja = (posSubidaJugador[0] + 1, posSubidaJugador[1])
                                 boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
@@ -106,9 +93,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #Puedo mover al jugardor
                         posSubidaJugador = (self.player_pos[0], self.player_pos[1] + 1)
                         #¿Hay una caja aqui?
-                        if posSubidaJugador in self.boxes_start:
+                        if posSubidaJugador in self.setBoxesStart:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]+1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]+1) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]+1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]+1) not in self.setBoxesStart:
                                 posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1]+ 1)
                                 boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
