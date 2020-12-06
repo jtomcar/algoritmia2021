@@ -1,5 +1,7 @@
 import collections
 import sys
+from time import time
+
 from bt_scheme import *
 
 
@@ -8,15 +10,31 @@ Pos = Tuple[int, int]
 def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
     class SokobanPS(PartialSolution):
 
-        def __init__(self, decisiones: List[Pos], player_pos, boxes_start):
+        def __init__(self, decisiones, player_pos, boxes_start):
             self.decisiones: List[Pos] = decisiones #lista con las decisiones tomadas
             self.longDecis = len(self.decisiones) #tamaño lista decisones
             self.longPasillos = len(level_map[0])
-            self.boxes_start = boxes_start #lista para recorrer las cajas
+            self.boxes_start = tuple(boxes_start) #lista para recorrer las cajas
+            self.boxes_end = tuple(boxes_end)
             self.player_pos = player_pos
 
         def is_solution(self) -> bool:
-            if collections.Counter(self.boxes_start) == collections.Counter(boxes_end):
+            # cont=0
+            # setBoxesStart = set(self.boxes_start)
+            # setBoxesEnd=set(boxes_end)
+            # for elem in setBoxesStart:
+            #     if elem in setBoxesEnd:
+            #         cont+=1
+            #     if cont==3:
+            #         cont=0
+            #         print("Start", self.boxes_start)
+            #         print("End", boxes_end)
+            #         return True
+            # return False
+
+            if collections.Counter(self.boxes_start) == collections.Counter(self.boxes_end):
+                print("Start", self.boxes_start)
+                print("End", boxes_end)
                 return True
             return False
 
@@ -27,13 +45,13 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
             return self.longDecis
 
         def state(self) -> State:
-            return self.boxes_start[0],self.boxes_start[1], self.player_pos
+            return (self.boxes_start, self.player_pos)
 
 
         def successors(self) -> Iterable["PartialSolutionWithOptimization"]:
             if self.longDecis < maximo: #Comprobar que no nos pasamos del maximo dado
                 # ¿Puedo mover al jugador?
-                if self.player_pos[0] < self.longPasillos and self.player_pos[1] < self.longPasillos-1: #No salimos del puzle
+                if 0 < self.player_pos[0] < len(level_map)-1 and 0 < self.player_pos[1] < self.longPasillos-1: #No salimos del puzle
                     # Subimos
                     if level_map[self.player_pos[0] - 1][self.player_pos[1]] != "#":
                         #Puedo mover al jugardor
@@ -41,9 +59,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #¿Hay una caja aqui?
                         if posSubidaJugador in self.boxes_start:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] - 1][posSubidaJugador[1]] != "#" and (player_pos[0]-1, posSubidaJugador[1]) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0] - 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]-1, posSubidaJugador[1]) not in self.boxes_start:
                                 posSubidaCaja = (posSubidaJugador[0] - 1, posSubidaJugador[1])
-                                boxes_start_cambiada = self.boxes_start[:]
+                                boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
                                 boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
                                 yield SokobanPS(self.decisiones + ("U",), posSubidaJugador, boxes_start_cambiada )
@@ -58,9 +76,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #¿Hay una caja aqui?
                         if posSubidaJugador in self.boxes_start:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]-1] != "#" and (player_pos[0], posSubidaJugador[1]-1) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]-1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]-1) not in self.boxes_start:
                                 posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1] - 1)
-                                boxes_start_cambiada = self.boxes_start[:]
+                                boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
                                 boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
                                 yield SokobanPS(self.decisiones + ("L",), posSubidaJugador, boxes_start_cambiada )
@@ -68,15 +86,15 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                             yield SokobanPS(self.decisiones + ("L",), posSubidaJugador, self.boxes_start)
 
                     # Bajamos
-                    if level_map[self.player_pos[0] + 1][player_pos[1]] != "#":
+                    if level_map[self.player_pos[0] + 1][self.player_pos[1]] != "#":
                         #Puedo mover al jugardor
                         posSubidaJugador = (self.player_pos[0] + 1, self.player_pos[1])
                         #¿Hay una caja aqui?
                         if posSubidaJugador in self.boxes_start:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0] + 1][posSubidaJugador[1]] != "#" and (player_pos[0]+1, posSubidaJugador[1]) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0] + 1][posSubidaJugador[1]] != "#" and (posSubidaJugador[0]+1, posSubidaJugador[1]) not in self.boxes_start:
                                 posSubidaCaja = (posSubidaJugador[0] + 1, posSubidaJugador[1])
-                                boxes_start_cambiada = self.boxes_start[:]
+                                boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
                                 boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
                                 yield SokobanPS(self.decisiones + ("D",), posSubidaJugador, boxes_start_cambiada )
@@ -90,9 +108,9 @@ def sokoban_solve ( level_map, player_pos, boxes_start, boxes_end, maximo ):
                         #¿Hay una caja aqui?
                         if posSubidaJugador in self.boxes_start:
                             #¿Puedo mover la caja a la siguiente posicion?
-                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]+1] != "#" and (player_pos[0], posSubidaJugador[1]+1) not in self.boxes_start:
+                            if level_map[posSubidaJugador[0]][posSubidaJugador[1]+1] != "#" and (posSubidaJugador[0], posSubidaJugador[1]+1) not in self.boxes_start:
                                 posSubidaCaja = (posSubidaJugador[0], posSubidaJugador[1]+ 1)
-                                boxes_start_cambiada = self.boxes_start[:]
+                                boxes_start_cambiada = list(self.boxes_start[:])
                                 #Muevo la caja
                                 boxes_start_cambiada[boxes_start_cambiada.index((posSubidaJugador[0], posSubidaJugador[1]))] = posSubidaCaja
                                 yield SokobanPS(self.decisiones + ("R",), posSubidaJugador, boxes_start_cambiada )
@@ -146,12 +164,24 @@ def leerFichero():
 #******************************************************************************************************
 
 if __name__ == '__main__':
+
+    tiempo_inicial = time()
+
     entrada = leerFichero()
     salida = read_level(entrada)
 
-    for sol in sokoban_solve(salida[0], salida[1], salida[2], salida[3], int(sys.argv[1])):
-        sol_string = "".join(sol)
-        print(sol_string)
-        exit(0) #Salida sin errores
+    imprime=list(sokoban_solve(salida[0], salida[1], salida[2], salida[3], int(sys.argv[1])))
 
-    print("NO HAY SOLUCIÓN CON LOS MOVIMIENTOS PEDIDOS")
+    if len(imprime)==0:
+        print("NO HAY SOLUCIÓN CON LOS MOVIMIENTOS PEDIDOS")
+    else:
+        for sol in imprime[-1]:
+            print(sol, end="")
+
+
+    tiempo_final = time()
+    tiempo_ejecucion = tiempo_final - tiempo_inicial
+    print("")
+    print ("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+
+
