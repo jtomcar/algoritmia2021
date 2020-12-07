@@ -1,0 +1,17 @@
+test_e4/p_0000001.ins 0.038
+test_e4/p_0000002.ins 0.036
+test_e4/p_0000003.ins 0.042
+test_e4/p_0000005.ins 0.045
+test_e4/p_0000006.ins 0.041
+test_e4/p_0000007.ins 0.034
+test_e4/p_0000008.ins 0.036
+test_e4/p_0000010.ins 0.036
+test_e4/p_0000100.ins 0.04
+test_e4/p_0000500.ins 0.036
+test_e4/p_0001000.ins 0.043
+test_e4/p_0005000.ins 0.056
+test_e4/p_0010000.ins 0.073
+test_e4/p_0050000.ins 0.22
+test_e4/p_0100000.ins 0.424
+test_e4/p_0500000.ins 2.111
+test_e4/p_1000000.ins 4.236

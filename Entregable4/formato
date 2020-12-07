@@ -1,0 +1,5 @@
+entregable4.py < test_e4/p_0000001.ins
+entregable4.py < test_e4/p_0000010.ins
+
+
+set PYTHONPATH=c:\Users\rhack\PycharmProjects\algoritmia\src;c:\Users\rhack\PycharmProjects\easycanvas\src
