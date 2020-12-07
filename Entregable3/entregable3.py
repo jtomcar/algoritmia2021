@@ -1,7 +1,8 @@
 import sys
 from time import time
+from typing import List, Tuple, Iterable
 
-from bt_scheme import *
+from bt_scheme import PartialSolution, Solution, Union, State, BacktrackingOptSolver
 
 Pos = Tuple[int, int]
 
