@@ -158,7 +158,7 @@ def leerFichero():
 
 if __name__ == '__main__':
 
-    tiempo_inicial = time()
+    # tiempo_inicial = time()
 
     solucion = list(sokoban_solve(read_level(leerFichero()), int(sys.argv[1])))
 
@@ -167,9 +167,9 @@ if __name__ == '__main__':
             print(sol, end="")
     else:
         print("NO HAY SOLUCIÓN CON LOS MOVIMIENTOS PEDIDOS")
-
-
-    tiempo_final = time()
-    tiempo_ejecucion = tiempo_final - tiempo_inicial
-    print("")
-    print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    #
+    #
+    # tiempo_final = time()
+    # tiempo_ejecucion = tiempo_final - tiempo_inicial
+    # print("")
+    # print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
