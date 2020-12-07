@@ -16,8 +16,9 @@ class Funambulista(IDivideAndConquerProblem):
         return self.num_elem <= 3
 
     def trivial_solution(self) -> Tuple[int, int, int, int]:
-        if self.edificios[self.h] < self.edificios[self.b] and self.edificios[self.h] < self.edificios[self.e - 1]:
-            return self.b, self.e - 1, self.h, min(self.edificios[self.b], self.edificios[self.e - 1]) - self.edificios[self.h]  # trivial_solution
+        if self.num_elem==3:
+            if self.edificios[self.h] < self.edificios[self.b] and self.edificios[self.h] < self.edificios[self.e - 1]:
+                return self.b, self.e - 1, self.h, min(self.edificios[self.b], self.edificios[self.e - 1]) - self.edificios[self.h]
         return 0, 0, 0, 0  # trivial_solution
 
     def divide(self):
