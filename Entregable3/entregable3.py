@@ -166,6 +166,7 @@ if __name__ == '__main__':
     if len(solucion):
         for sol in solucion[-1]:
             print(sol, end="")
+        print("")
     else:
         print("NO HAY SOLUCIÓN CON LOS MOVIMIENTOS PEDIDOS")
     #
