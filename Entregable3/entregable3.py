@@ -64,21 +64,6 @@ def sokoban_solve(initial_level, maximo):
                                                  self.boxes_start, self.boxes_end, 0, 0)
                         yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
 
-                # Izquierda
-                if self.level_map[self.player_pos[0]][self.player_pos[1] - 1] != "#":
-                    if (self.player_pos[0], self.player_pos[1] - 1) in self.boxes_start:
-                        if self.level_map[self.player_pos[0]][self.player_pos[1] - 2] != "#":
-                            if (self.player_pos[0], self.player_pos[1] - 2) not in self.boxes_start:
-                                nuevo_nivel = nuevo_mapa(self.level_map, (self.player_pos[0], self.player_pos[1] - 1),
-                                                         list(self.boxes_start),
-                                                         self.boxes_end, (self.player_pos[0], self.player_pos[1] - 2),
-                                                         1)
-                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
-                    else:
-                        nuevo_nivel = nuevo_mapa(self.level_map, (self.player_pos[0], self.player_pos[1] - 1),
-                                                 self.boxes_start, self.boxes_end, 0, 1)
-                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
-
                 # Bajamos
                 if self.level_map[self.player_pos[0] + 1][self.player_pos[1]] != "#":
                     if (self.player_pos[0] + 1, self.player_pos[1]) in self.boxes_start:
@@ -108,6 +93,22 @@ def sokoban_solve(initial_level, maximo):
                         nuevo_nivel = nuevo_mapa(self.level_map, (self.player_pos[0], self.player_pos[1] + 1),
                                                  self.boxes_start, self.boxes_end, 0, 3)
                         yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+
+                # Izquierda
+                if self.level_map[self.player_pos[0]][self.player_pos[1] - 1] != "#":
+                    if (self.player_pos[0], self.player_pos[1] - 1) in self.boxes_start:
+                        if self.level_map[self.player_pos[0]][self.player_pos[1] - 2] != "#":
+                            if (self.player_pos[0], self.player_pos[1] - 2) not in self.boxes_start:
+                                nuevo_nivel = nuevo_mapa(self.level_map, (self.player_pos[0], self.player_pos[1] - 1),
+                                                         list(self.boxes_start),
+                                                         self.boxes_end, (self.player_pos[0], self.player_pos[1] - 2),
+                                                         1)
+                                yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+                    else:
+                        nuevo_nivel = nuevo_mapa(self.level_map, (self.player_pos[0], self.player_pos[1] - 1),
+                                                 self.boxes_start, self.boxes_end, 0, 1)
+                        yield SokobanPS(self.decisiones + nuevo_nivel[-1], nuevo_nivel[0:4])
+
 
     sokoban = SokobanPS((), initial_level)
     return BacktrackingOptSolver.solve(sokoban)
