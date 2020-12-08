@@ -5,11 +5,11 @@ from typing import *
 from algoritmia.schemes.divideandconquer import *
 
 class Funambulista(IDivideAndConquerProblem):
-    def __init__(self, edificios: List[int]):
+    def __init__(self, edificios: List[int], b, e):
         self.edificios=edificios
         self.num_elem = len(edificios)
-        self.b = 0
-        self.e = len(edificios)
+        self.b = b
+        self.e = e
         self.h = (self.b + self.e) // 2
 
     def is_simple(self) -> "bool":
@@ -21,12 +21,15 @@ class Funambulista(IDivideAndConquerProblem):
                 return self.b, self.e - 1, self.h, min(self.edificios[self.b], self.edificios[self.e - 1]) - self.edificios[self.h]
         return 0, 0, 0, 0  # trivial_solution
 
-    def divide(self):
+    def divide(self) -> Iterable["Funambulista"]:
+        yield Funambulista(self.edificios, self.b, self.h)
+        yield Funambulista(self.edificios, self.h, self.e)
+
+    def combine(self, s: Iterable[List[int]]) -> List[int]:
         pass
 
-    def combine(self, solutions):
-        pass
-    # def divide(self) -> "Iterable<IDivideAndConquerProblem>":
+
+    # def divide(self)
     #     pass
     #
     # def combine(self, solutions: "Iterable<Solution>") -> "Solution":
@@ -51,15 +54,17 @@ if __name__ == '__main__':
     tiempo_inicial = time()
 
     entrada=[int(i) for i in leerFichero()]
-    ms_problem = Funambulista(entrada[1:])
-    solucion = DivideAndConquerSolver().solve(ms_problem)
+    num_edificios = entrada[0]
+    edificios = entrada[1:]
+    fun_problem = Funambulista(edificios, 0, len(edificios))
+    solucion = DivideAndConquerSolver().solve(fun_problem)
 
-    if solucion == (0, 0, 0, 0):
-        print("NO HAY SOLUCIÓN")
-    else:
-        for sol in solucion:
-            print(sol, end=" ")
-        print("")
+    # if solucion == (0, 0, 0, 0):
+    #     print("NO HAY SOLUCIÓN")
+    # else:
+    #     for sol in solucion:
+    #         print(sol, end=" ")
+    #     print("")
 
     tiempo_final = time()
     tiempo_ejecucion = tiempo_final - tiempo_inicial
