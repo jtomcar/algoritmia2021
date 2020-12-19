@@ -72,52 +72,86 @@ if __name__ == '__main__':
     edificios = entrada[1:]
     # fun_problem = Funambulista(edificios)
     # sol = DivideAndConquerSolver().solve(fun_problem)
+    listaMaximos=list()
+    lista=list()
+    maximo = 0
+    resta=0
+    pos = 0
+    pos2 = 0
+    ordenados=list(edificios)
+    ordenados.sort(reverse=True)
+    while len(listaMaximos) < 10:
+        maximo = 0
+        for i in range(len(edificios)):
+            for j in range(len(edificios)):
+                resta=edificios[i]-edificios[j]
+                if resta > maximo and resta not in listaMaximos and i<j:
+                    maximo = resta
+                    pos = i
+                    pos2 = j
+        lista.append((pos,pos2,maximo))
+        listaMaximos.append(maximo)
+
+    continua = True
+    while continua:
+        for i in range(len(edificios[lista[0][1]:])):
+            if edificios[lista[0][0]] <= edificios[lista[0][0]+i]:
+                print("Hola", lista[0][1])
+                continua=False
+            else:
+                lista.pop(0)
+
+
+    print(lista)
+    print(listaMaximos)
 
     #************  PRUEBA **********************************************************
-    sigue=True
-    copia=edificios[:]
-    while sigue:
-        print("tamCopia",len(copia))
-        print("tamEdif", len(edificios))
-        fun_problem = Funambulista(copia)
-        sol = DivideAndConquerSolver().solve(fun_problem)
-        sigue=True
-        ordenados=list(edificios)
-        ordenados.sort(reverse=True)
-        k=0
-        l=1
-        print("masAlto", sol[1])
-        masAlto=sol[1]
-        masBajo=sol[0]
-        posMasBajo=0
-        posMasAlto=0
-        segMasAlto = 0
-        posSegMasAlto = 0
-        for i in range(len(ordenados)):
-            if ordenados[i]==masAlto:
-                segMasAlto=ordenados[i+1]
-                break
+    # sigue=True
+    # copia=edificios[:]
+    # while sigue:
+    #     print("tamCopia",len(copia))
+    #     print("tamEdif", len(edificios))
+    #     fun_problem = Funambulista(copia)
+    #     sol = DivideAndConquerSolver().solve(fun_problem)
+    #     sigue=True
+    #     ordenados=list(edificios)
+    #     ordenados.sort(reverse=True)
+    #
+    #     k=0
+    #     l=1
+    #     print("masAlto", sol[1])
+    #     masAlto=sol[1]
+    #     masBajo=sol[0]
+    #     posMasBajo=0
+    #     posMasAlto=0
+    #     segMasAlto = 0
+    #     posSegMasAlto = 0
+    #     for i in range(len(ordenados)):
+    #         if ordenados[i]==masAlto:
+    #             segMasAlto=ordenados[i+1]
+    #             break
+    #
+    #     for i in range(len(edificios)):
+    #         if edificios[i]==masBajo:
+    #             posMasBajo=i
+    #         if edificios[i]==masAlto:
+    #             posMasAlto=i
+    #         if edificios[i]==segMasAlto:
+    #             posSegMasAlto=i
+    #             break
+    #
+    #     print(posMasBajo,posMasAlto)
+    #     print("segMasAlto", segMasAlto, posSegMasAlto)
+    #
+    #     if masBajo in edificios[min(posMasAlto,posSegMasAlto):max(posMasAlto,posSegMasAlto)]:
+    #         print("Esta entre ellos")
+    #         print(posSegMasAlto, posMasAlto, posMasBajo)
+    #         sigue=False
+    #     else:
+    #         copia.remove(masAlto)
 
-        for i in range(len(edificios)):
-            if edificios[i]==masBajo:
-                posMasBajo=i
-            if edificios[i]==masAlto:
-                posMasAlto=i
-            if edificios[i]==segMasAlto:
-                posSegMasAlto=i
-                break
 
-        print(posMasBajo,posMasAlto)
-        print("segMasAlto", segMasAlto, posSegMasAlto)
-
-        if masBajo in edificios[min(posMasAlto,posSegMasAlto):max(posMasAlto,posSegMasAlto)]:
-            print("Esta entre ellos")
-            print(posSegMasAlto, posMasAlto, posMasBajo)
-            sigue=False
-        else:
-            copia.remove(masAlto)
-
-
+#**************************************************************************************
 
 
 
