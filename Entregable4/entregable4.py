@@ -93,7 +93,7 @@ def salida(a, b):
 # ******************************************************************************************************
 
 if __name__ == '__main__':
-    tiempo_inicial = time()
+    # tiempo_inicial = time()
 
     entrada = [int(a) for a in leerFichero()]
     num_edificios = entrada[0]
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     solucionR = list(DivideAndConquerSolver().solve(fun_problemR))
 
     salida(solucion, solucionR)
-
-    tiempo_final = time()
-    tiempo_ejecucion = tiempo_final - tiempo_inicial
-    print("")
-    print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    #
+    # tiempo_final = time()
+    # tiempo_ejecucion = tiempo_final - tiempo_inicial
+    # print("")
+    # print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
