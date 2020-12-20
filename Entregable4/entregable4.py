@@ -10,7 +10,7 @@ class Funambulista(IDivideAndConquerProblem):
         self.b = b
         self.e = e
         self.sol = sol
-        self.posMax=self.edificios.index(max(self.edificios))
+        self.posMax = self.edificios.index(max(self.edificios))
 
     def is_simple(self) -> "bool":
         return len(self.edificios) <= 1
@@ -22,47 +22,70 @@ class Funambulista(IDivideAndConquerProblem):
         yield Funambulista(self.edificios[:self.posMax], self.sol, self.e, self.posMax)
         yield Funambulista(self.edificios[self.posMax:], self.sol, self.e, self.posMax)
 
-
     def combine(self, s: Iterable[List[int]]) -> List[int]:
         if self.posMax != 0:
             a, b = tuple(s)
-            valle = altura = posValle = posEdif1 = posEdif2 = 0
-            minimo = max(edificios)
+            valle = altura = posEdif1 = posEdif2 = 0
+            minimo = max(self.e)
+            posValle = a, b
             a = b = self.b
             while True:
-                edif1 = edificios[b]
-                if edificios[a] > edif1 and valle == 0:
+                edif1 = self.e[b]
+                if self.e[a] > edif1 and valle == 0:
                     b = a
-                if edificios[a] < edif1 and edificios[a] < minimo:
-                    valle = edificios[a]
-                    minimo = edificios[a]
+                if self.e[a] < edif1 and self.e[a] < minimo:
+                    valle = self.e[a]
+                    minimo = self.e[a]
                     posValle = a
-                if edificios[a] >= edif1 and valle != 0:
+                if self.e[a] >= edif1 and valle != 0:
                     posEdif2 = a
                     posEdif1 = b
                     altura = edif1 - valle
                     break
-                if a == len(edificios) - 1:
+                if a == len(self.e) - 1:
                     break
                 a = a + 1
-            self.sol.append((posEdif1,posEdif2,posValle,altura))
+            self.sol.append((posEdif1, posEdif2, posValle, altura))
             maximo = 0
-            solucion=list()
+            solucion = list()
             for elem in self.sol:
                 if elem[3] > maximo:
                     maximo = elem[3]
                     solucion = elem
             return solucion
-        self.edificios=list()
+        self.edificios = list()
         return self.sol
 
+
 # ******************************************************************************************************
-#    METODO DE ENTRADA
+#    METODO DE ENTRADA Y SALIDA
 # ******************************************************************************************************
 
 def leerFichero():
     lineas = sys.stdin.readlines()
     return lineas
+
+
+def salida(a, b):
+    tam = len(edificios) - 1
+    if (not a and not b) or (len(a) and len(b)) == 1:
+        print("NO HAY SOLUCIÓN\n")
+    else:
+        if not b:
+            for sol in a: print(sol, end=" ")
+            print("")
+        elif not a:
+            b = tam - b[1], tam - b[0], tam - b[2], b[3]
+            for sol in b: print(sol, end=" ")
+            print("")
+        else:
+            if a[3] > b[3]:
+                for sol in a: print(sol, end=" ")
+                print("")
+            else:
+                b = tam - b[1], tam - b[0], tam - b[2], b[3]
+                for sol in b: print(sol, end=" ")
+                print("")
 
 
 # ******************************************************************************************************
@@ -74,49 +97,19 @@ if __name__ == '__main__':
 
     entrada = [int(a) for a in leerFichero()]
     num_edificios = entrada[0]
-    edificios = entrada[1:]
+    edificios = e = entrada[1:]
 
-    edificios2=list()
+    edificios2 = list()
     for a in reversed(edificios):
         edificios2.append(a)
-    reves=edificios2[:]
+    reves = r = edificios2[:]
 
-    fun_problem = Funambulista(edificios, list(), edificios, 0)
-    fun_problemR = Funambulista(reves, list(), reves, 0)
+    fun_problem = Funambulista(edificios, list(), e, 0)
+    fun_problemR = Funambulista(reves, list(), r, 0)
     solucion = list(DivideAndConquerSolver().solve(fun_problem))
     solucionR = list(DivideAndConquerSolver().solve(fun_problemR))
 
-    # print("SOLUCION")
-    # print(solucion)
-    # print(solucionR)
-
-    if not solucion and not solucionR:
-        print("NO HAY SOLUCIÓN")
-        exit(0)
-    else:
-        if not solucionR:
-            for sol in solucion:
-                print(sol, end=" ")
-            print("")
-        elif not solucion:
-            solucionR = (len(edificios) - 1) - solucionR[1], (len(edificios) - 1) - solucionR[0], (len(edificios) - 1) - \
-                        solucionR[2], solucionR[3]
-            for sol in solucionR:
-                print(sol, end=" ")
-            print("")
-        else:
-            if solucion[3] > solucionR[3]:
-                for sol in solucion:
-                    print(sol, end=" ")
-                print("")
-            else:
-                solucionR = (len(edificios) - 1) - solucionR[1], (len(edificios) - 1) - solucionR[0], (
-                            len(edificios) - 1) - solucionR[2], solucionR[3]
-                for sol in solucionR:
-                    print(sol, end=" ")
-                print("")
-
-
+    salida(solucion, solucionR)
 
     tiempo_final = time()
     tiempo_ejecucion = tiempo_final - tiempo_inicial
