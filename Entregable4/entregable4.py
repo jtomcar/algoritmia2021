@@ -73,17 +73,13 @@ def salida(a, b):
     else:
         if not b:
             print(str(a[0])+" "+str(a[1])+" "+str(a[2])+" "+str(a[3]))
-            print("")
         elif not a:
             print(str(tam - b[1])+" "+str(tam - b[0])+" "+str(tam - b[2])+" "+str(b[3]))
-            print("")
         else:
             if a[3] > b[3]:
                 print(str(a[0])+" "+str(a[1])+" "+str(a[2])+" "+str(a[3]))
-                print("")
             else:
                 print(str(tam - b[1])+" "+str(tam - b[0])+" "+str(tam - b[2])+" "+str(b[3]))
-                print("")
 
 
 # ******************************************************************************************************
