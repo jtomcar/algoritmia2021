@@ -69,22 +69,20 @@ def leerFichero():
 def salida(a, b):
     tam = len(edificios) - 1
     if (not a and not b) or (len(a) and len(b)) == 1:
-        print("NO HAY SOLUCIÓN\n")
+        print("NO HAY SOLUCIÓN")
     else:
         if not b:
-            for sol in a: print(sol, end=" ")
+            print(str(a[0])+" "+str(a[1])+" "+str(a[2])+" "+str(a[3]))
             print("")
         elif not a:
-            b = tam - b[1], tam - b[0], tam - b[2], b[3]
-            for sol in b: print(sol, end=" ")
+            print(str(tam - b[1])+" "+str(tam - b[0])+" "+str(tam - b[2])+" "+str(b[3]))
             print("")
         else:
             if a[3] > b[3]:
-                for sol in a: print(sol, end=" ")
+                print(str(a[0])+" "+str(a[1])+" "+str(a[2])+" "+str(a[3]))
                 print("")
             else:
-                b = tam - b[1], tam - b[0], tam - b[2], b[3]
-                for sol in b: print(sol, end=" ")
+                print(str(tam - b[1])+" "+str(tam - b[0])+" "+str(tam - b[2])+" "+str(b[3]))
                 print("")
 
 
