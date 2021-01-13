@@ -1,31 +1,37 @@
 import sys
 from time import time
 
-
-def mayor_beneficio_mem_solve(fil, col, nFilas: int, nColumnas: int, diamantes):
-    def L(fil, col):
-        if fil > nFilas - 1 or col > nColumnas - 1: return 0 #No sale de la matriz
-        if fil == nFilas - 1 and col == nColumnas - 1:
-            print(mem)
-            return diamantes[fil, col] #Es la última posición
-        if (fil, col) not in mem:
-            print(mem)
-            f_abajo, c_derecha = fil + 1, col + 1
-            mem[fil, col] = max( diamantes[fil, col] + L(fil, c_derecha), diamantes[fil, col] + L(f_abajo, col))
-        return mem[fil, col]
+def mayor_beneficio_mem_solve(m, n, M, N, v):
+    conj=set()
+    def L(m, n):
+        if m >= M or n >= N: return 0
+        if (m,n) in conj: print("Hoda")
+        if (m, n) not in mem and (m,n) not in conj:
+            mem[m, n] = max( L(m, n + 1) + v[m, n] , L(m + 1, n) + v[m, n] )
+            conj.add((m,n))
+        print(conj)
+        return mem[m, n]
 
     mem = dict()
-    return L(fil, col)
+    return L(m, n)
 
 
 # ******************************************************************************************************
-#    METODO DE ENTRADA Y SALIDA
+#    METODO DE ENTRADA
 # ******************************************************************************************************
 
 def leerFichero():
-    lineas = sys.stdin.readlines()
-    return lineas
+    v=dict()
+    M, N = sys.stdin.readline().split(" ")
+    x = sys.stdin.readline()
+    for m in range(int(M)):
+        for n in range(int(N)):
+            v[m, n] = 0
+    for elem in sys.stdin.readlines():
+        a, b, c = elem.split(" ")
+        v[int(a), int(b)] = int(c)
 
+    return M, N, v
 
 # ******************************************************************************************************
 #    MAIN
@@ -36,17 +42,20 @@ if __name__ == '__main__':
 
     sys.setrecursionlimit(5000) #Para que no limite la pila por las limitaciones de python
 
-    entrada = leerFichero()
-    nf, nc = entrada[0].split(" ")
-    diamantes = dict()
-    for fil in range(int(nf)):
-        for col in range(int(nc)):
-            diamantes[fil, col] = 0
-    for i in range(len(entrada[2:])):
-        a, b, c = entrada[i + 2].split(" ")
-        diamantes[int(a), int(b)] = int(c)
+    M,N,v = leerFichero()
 
-    print(mayor_beneficio_mem_solve(0, 0, int(nf), int(nc), diamantes))
+    # nf, nc = entrada[0].split(" ")
+    # diamantes=entrada[2:]
+    # print(diamantes)
+    # v = dict()
+    # for m in range(int(nf)):
+    #     for n in range(int(nc)):
+    #         v[m, n] = 0
+    # for i in range(len(entrada[2:])):
+    #     a, b, c = entrada[i + 2].split(" ")
+    #     v[int(a), int(b)] = int(c)
+
+    print(mayor_beneficio_mem_solve(0, 0, int(M), int(N), v))
 
     tiempo_final = time()
     tiempo_ejecucion = tiempo_final - tiempo_inicial
