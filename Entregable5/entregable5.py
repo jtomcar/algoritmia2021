@@ -52,7 +52,7 @@ if __name__ == '__main__':
     #     a, b, c = entrada[i + 2].split(" ")
     #     v[int(a), int(b)] = int(c)
 
-    # print(mayor_beneficio_mem_solve(0, 0, int(M), int(N), v))
+    print(mayor_beneficio_mem_solve(0, 0, int(M), int(N), v))
     #
     # tiempo_final = time()
     # tiempo_ejecucion = tiempo_final - tiempo_inicial
