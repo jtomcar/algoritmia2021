@@ -1,1 +1,3 @@
 entregable5.py < test_e5/p_0006_0008.ins
+
+set PYTHONPATH=c:\Users\rhack\Documents\algoritmia\src;c:\Users\rhack\Documents\easycanvas\src
