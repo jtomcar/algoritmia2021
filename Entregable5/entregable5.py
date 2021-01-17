@@ -1,12 +1,16 @@
 import sys
-from time import time
+# from time import time
 
 def mayor_beneficio_mem_solve(m, n, M, N, v, d):
     def L(m, n):
         if m >= M or n >= N: return 0
         if (m, n) not in mem:
-            maximo=max(L(m+1,n), L(m,n+1)) + v[m, n]
-            mem[m, n] = maximo
+            if m == M-1:
+                mem[m, n] = L(m,n+1) + v[m,n]
+            if n == N-1:
+                mem[m,n] = L(m+1,n) + v[m,n]
+            else:
+                mem[m, n] = max(L(m+1,n), L(m,n+1)) + v[m, n]
         return mem[m, n]
 
     mem = {}
@@ -38,7 +42,7 @@ def leerFichero():
 # ******************************************************************************************************
 
 if __name__ == '__main__':
-    tiempo_inicial = time()
+    # tiempo_inicial = time()
 
     sys.setrecursionlimit(5000) #Para que no limite la pila por las limitaciones de python
 
@@ -46,7 +50,7 @@ if __name__ == '__main__':
 
     print(mayor_beneficio_mem_solve(0, 0, int(M), int(N), v, d ))
     #
-    tiempo_final = time()
-    tiempo_ejecucion = tiempo_final - tiempo_inicial
-    print("")
-    print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
+    # tiempo_final = time()
+    # tiempo_ejecucion = tiempo_final - tiempo_inicial
+    # print("")
+    # print("El tiempo de ejecucion fue:", tiempo_ejecucion, "segundos")  # En segundos
