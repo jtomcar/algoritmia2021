@@ -1,7 +1,8 @@
 import sys
 from time import time
 
-def mayor_beneficio_mem_solve( M, N, v ):
+
+def mayor_beneficio_mem_solve(M, N, v):
     def L(m, n):
         if m < 0 or n < 0: return 0
         if m == 0 and n == 0: return 0
@@ -47,7 +48,7 @@ if __name__ == '__main__':
 
     M, N, v = leerFichero()
 
-    print(mayor_beneficio_mem_solve(int(M) - 1, int(N) - 1,v))
+    print(mayor_beneficio_mem_solve(int(M) - 1, int(N) - 1, v))
     #
     tiempo_final = time()
     tiempo_ejecucion = tiempo_final - tiempo_inicial
