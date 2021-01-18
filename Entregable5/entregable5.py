@@ -1,13 +1,12 @@
 import sys
 
+
 def mayor_beneficio_mem_solve(M, N, v):
     def L(m, n):
         if m == 0 and n == 0:
-            if (m,n) in v:
-                mem[m, n] = v[m,n]
             return 0
         if (m, n) not in mem:
-            if (m,n) not in v:
+            if (m, n) not in v:
                 if m == 0:
                     mem[m, n] = L(m, n - 1)
                 elif n == 0:
@@ -21,10 +20,13 @@ def mayor_beneficio_mem_solve(M, N, v):
                     mem[m, n] = L(m - 1, n) + v[m, n]
                 else:
                     mem[m, n] = max(L(m - 1, n), L(m, n - 1)) + v[m, n]
-
         return mem[m, n]
+
     mem = {}
-    return L(M, N)
+    score = L(M, N)
+    if (0, 0) in v: score += v[0, 0]
+    return score
+
 
 # ******************************************************************************************************
 #    MAIN
