@@ -2,7 +2,10 @@ import sys
 
 def mayor_beneficio_mem_solve(M, N, v):
     def L(m, n):
-        if m == 0 and n == 0: return 0
+        if m == 0 and n == 0:
+            if (m,n) in v:
+                mem[m, n] = v[m,n]
+            return 0
         if (m, n) not in mem:
             if (m,n) not in v:
                 if m == 0:
