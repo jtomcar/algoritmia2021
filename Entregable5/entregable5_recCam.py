@@ -6,18 +6,32 @@ from algoritmia.utils import infinity
 
 def mayor_beneficio_mem_solve(M, N, v):
     def L(m, n):
-        if m < 0 or n < 0: return -infinity
+        if m < 0 or n < 0: return 0
         if m == 0 and n == 0: return 0
         if (m, n) not in mem:
+            mem[m,n]=-infinity, ()
             if m == 0:
-                mem[m, n] = L(m, n - 1) + v[m, n]
+                mem[m, n] = L(m, n - 1) + v[m, n],(m,n-1)
             elif n == 0:
-                mem[m, n] = L(m - 1, n) + v[m, n]
+                mem[m, n] = L(m - 1, n) + v[m, n],(m-1,n)
             else:
-                mem[m, n] = max(L(m - 1, n), L(m, n - 1)) + v[m, n]
-        return mem[m, n]
+                if v[m-1,n]>v[m,n-1]:
+                    mPrev, nPrev = m-1, n
+                else:
+                    mPrev, nPrev = m , n-1
+                mem[m, n] = max(L(m - 1, n), L(m, n - 1)) + v[m, n],(mPrev,nPrev)
+        return mem[m, n][0]
     mem = {}
-    return L(M,N)
+    score=L(M,N)
+    sol=[]
+    m,n = M,N
+    while (m,n) != (0,0):
+        _,(mPrev,nPrev) = mem[m,n]
+        if mPrev!=0 and nPrev!=0:
+            sol.append(max(v[mPrev-1, nPrev],v[mPrev, nPrev-1])+v[mPrev, nPrev])
+        m,n=mPrev,nPrev
+    sol.reverse()
+    return score, sol
 
 
 # ******************************************************************************************************
